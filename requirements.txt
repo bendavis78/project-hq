@@ -1,0 +1,4 @@
+-e git://github.com/django/django.git#egg=Django
+-e git://github.com/bendavis78/django-orderable.git#egg=django-orderable
+-e git+git@git.farstarserver.com:libfarstar.git#egg=libfarstar
+South
