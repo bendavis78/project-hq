@@ -8,16 +8,31 @@ class CompletedListFilter(admin.SimpleListFilter):
     parameter_name='is_completed'
 
     def lookups(self, request, model_admin):
-        return (
-            ('0', 'No'),
-            ('1', 'Yes'),
-        )
+        pass
+    def has_output(self):
+        return True
+
+    def choices(self, cl):
+        return ({
+            'selected': self.value() is None,
+            'query_string': cl.get_query_string({}, [self.parameter_name]),
+            'display': 'Incomplete'
+        }, {
+            'selected': self.value() == '1',
+            'query_string': cl.get_query_string({self.parameter_name: '1'}, []),
+            'display': 'Completed'
+        }, {
+            'selected': self.value() == '2',
+            'query_string': cl.get_query_string({self.parameter_name: '2'},[]),
+            'display': 'All'
+        })
 
     def queryset(self, request, queryset):
-        if self.value() == '0':
-            return queryset.filter(completed__isnull=True)
         if self.value() == '1':
             return queryset.filter(completed__isnull=False)
+        if self.value() == '2':
+            return queryset
+        return queryset.filter(completed__isnull=True)
 
 
 class SprintListFilter(admin.SimpleListFilter):
@@ -44,9 +59,9 @@ class SprintListFilter(admin.SimpleListFilter):
         return queryset.filter(pk__in=task_ids)
 
 class TaskAdmin(OrderableAdmin):
-    list_display = ['_description', 'project', '_sprint', 'effort', 'completed']
+    list_display = ['_description', 'project', 'team', '_sprint', 'effort', 'deadline', 'completed']
     list_editable = ['effort', 'completed']
-    list_filter = [CompletedListFilter, SprintListFilter]
+    list_filter = ['team', CompletedListFilter, SprintListFilter]
 
     def _description(self, obj):
         return obj.description.split('\n')[0]
@@ -56,7 +71,7 @@ class TaskAdmin(OrderableAdmin):
         if obj.sprint == 0:
             return 'Current'
         if obj.sprint is None:
-            return ''
+            return '---'
         return utils.get_sprint_date(obj.sprint).strftime('%b %d')
     _sprint.short_description = 'Sprint'
 
@@ -71,6 +86,11 @@ class ProjectInline(admin.TabularInline):
 class ClientAdmin(admin.ModelAdmin):
     inlines = [ProjectInline]
 
+class TeamAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(models.Client, ClientAdmin)
 admin.site.register(models.Project, ProjectAdmin)
 admin.site.register(models.Task, TaskAdmin)
+admin.site.register(models.Team, TeamAdmin)
+admin.site.register(models.TeamStrengthAdjustment)

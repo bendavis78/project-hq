@@ -8,79 +8,14 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding model 'Client'
-        db.create_table('taskboard_client', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-        ))
-        db.send_create_signal('taskboard', ['Client'])
-
-        # Adding model 'Project'
-        db.create_table('taskboard_project', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('client', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['taskboard.Client'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=200)),
-        ))
-        db.send_create_signal('taskboard', ['Project'])
-
-        # Adding model 'Team'
-        db.create_table('taskboard_team', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
-        ))
-        db.send_create_signal('taskboard', ['Team'])
-
-        # Adding M2M table for field members on 'Team'
-        db.create_table('taskboard_team_members', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('team', models.ForeignKey(orm['taskboard.team'], null=False)),
-            ('user', models.ForeignKey(orm['auth.user'], null=False))
-        ))
-        db.create_unique('taskboard_team_members', ['team_id', 'user_id'])
-
-        # Adding model 'Task'
-        db.create_table('taskboard_task', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('priority', self.gf('django.db.models.fields.IntegerField')(null=True)),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['taskboard.Project'])),
-            ('team', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['taskboard.Team'])),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('effort', self.gf('django.db.models.fields.IntegerField')()),
-            ('completed', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('blocked', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('icebox', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('taskboard', ['Task'])
-
-        # Adding model 'TeamStrengthAdjustment'
-        db.create_table('taskboard_teamstrengthadjustment', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('team', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['taskboard.Team'])),
-            ('start_date', self.gf('django.db.models.fields.DateField')()),
-            ('end_date', self.gf('django.db.models.fields.DateField')()),
-        ))
-        db.send_create_signal('taskboard', ['TeamStrengthAdjustment'])
+        # Adding field 'Task.deadline'
+        db.add_column('taskboard_task', 'deadline', self.gf('django.db.models.fields.DateField')(null=True, blank=True), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting model 'Client'
-        db.delete_table('taskboard_client')
-
-        # Deleting model 'Project'
-        db.delete_table('taskboard_project')
-
-        # Deleting model 'Team'
-        db.delete_table('taskboard_team')
-
-        # Removing M2M table for field members on 'Team'
-        db.delete_table('taskboard_team_members')
-
-        # Deleting model 'Task'
-        db.delete_table('taskboard_task')
-
-        # Deleting model 'TeamStrengthAdjustment'
-        db.delete_table('taskboard_teamstrengthadjustment')
+        # Deleting field 'Task.deadline'
+        db.delete_column('taskboard_task', 'deadline')
 
 
     models = {
@@ -135,12 +70,14 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['-completed', 'priority']", 'object_name': 'Task'},
             'blocked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'completed': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'deadline': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'effort': ('django.db.models.fields.IntegerField', [], {}),
             'icebox': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'priority': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['taskboard.Project']"}),
+            'tags': ('tagging.fields.TagField', [], {}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['taskboard.Team']"})
         },
         'taskboard.team': {

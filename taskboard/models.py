@@ -1,5 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 from orderable.models import OrderableModel
+from tagging.fields import TagField
 
 class Client(models.Model):
     name = models.CharField(max_length=100)
@@ -20,6 +22,13 @@ class Project(models.Model):
     class Meta:
         ordering = ['client', 'name']
 
+class Team(models.Model):
+    name = models.CharField(max_length=50)
+    members = models.ManyToManyField(User)
+
+    def __unicode__(self):
+        return self.name
+
 class TaskManager(models.Manager):
     def for_sprint(self):
         qs = self.get_query_set()
@@ -28,11 +37,14 @@ class TaskManager(models.Manager):
 class Task(OrderableModel):
     priority = models.IntegerField(null=True)
     project = models.ForeignKey(Project)
+    team = models.ForeignKey(Team)
     description = models.TextField()
     effort = models.IntegerField()
+    deadline = models.DateField(null=True,blank=True)
     completed = models.DateField(null=True,blank=True)
     blocked = models.BooleanField()
     icebox = models.BooleanField()
+    tags = TagField()
 
     ordering_field = 'priority'
 
@@ -46,9 +58,8 @@ class Task(OrderableModel):
     def sprint(self):
         from . import utils
         return utils.get_task_sprint(self)
- 
-#class SprintHistory(models.Model):
-#    start_date = models.DateField()
-#    end_date = models.DateField()
-#    velocity = models.IntegerField()
-#    completed_points = models.IntegerField()
+
+class TeamStrengthAdjustment(models.Model):
+    team = models.ForeignKey(Team)
+    start_date = models.DateField()
+    end_date = models.DateField()

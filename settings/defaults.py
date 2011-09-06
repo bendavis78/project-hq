@@ -114,6 +114,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 INSTALLED_APPS = (
     'taskboard',
     'orderable',
+    'tagging',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
