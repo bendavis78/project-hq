@@ -89,8 +89,8 @@ class ClientAdmin(admin.ModelAdmin):
 class TeamAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(models.Client, ClientAdmin)
-admin.site.register(models.Project, ProjectAdmin)
-admin.site.register(models.Task, TaskAdmin)
-admin.site.register(models.Team, TeamAdmin)
-admin.site.register(models.TeamStrengthAdjustment)
+#admin.site.register(models.Client, ClientAdmin)
+#admin.site.register(models.Project, ProjectAdmin)
+#admin.site.register(models.Task, TaskAdmin)
+#admin.site.register(models.Team, TeamAdmin)
+#admin.site.register(models.TeamStrengthAdjustment)

@@ -1,0 +1,1 @@
+class TaskExists(Exception): pass

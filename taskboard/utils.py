@@ -27,7 +27,6 @@ def get_task_sprint(task):
     task_sprints = calculate_sprints()
     return task_sprints.get(task, None) 
 
-
 def get_sprint_date(num=0):
     """
     Calculates the start date of the current sprint

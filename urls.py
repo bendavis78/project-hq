@@ -6,6 +6,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^$', 'dashboard.views.index'),
+    (r'^dashboard/', include('dashboard.urls')),
+    (r'^tickets/', include('tickets.urls')),
+    (r'^taskboard/', include('taskboard.urls')),
     (r'^admin/', include(admin.site.urls)),
 )
 

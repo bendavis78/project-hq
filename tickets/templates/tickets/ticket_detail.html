@@ -1,0 +1,21 @@
+{% extends "tickets/base.html" %}
+{% load markup %}
+
+{% block tickets_content %}
+<div class="ticket detail">
+  <h2><a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></h2>
+  <p><a href="edit/">Edit</a></p>
+  <dl>
+    <dt>Project:</td><dd>{{ ticket.project }}</dd>
+    <dt>Status:</dt><dd>{{ ticket.get_status_display }}</dd>
+    <dt>Owner:</dt><dd>{{ ticket.owner }}</dd>
+    <dt>Submitted on:</dt><dd>{{ ticket.submitted }}</dd>
+    {% if ticket.due_date %}
+    <dt>Due on:</dt><dd>{{ ticket.due_date }}</dd>
+    {% endif %}
+  </dl>
+  <div class="description">
+    {{ ticket.description|textile }}
+  </div>
+</div>
+{% endblock %}

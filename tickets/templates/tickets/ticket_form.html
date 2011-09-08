@@ -1,0 +1,12 @@
+{% extends "tickets/base.html" %}
+{% load formhelper %}
+
+{% block tickets_content %}
+{{ block.super }}
+<form method="POST">{% csrf_token %}
+{% include "formhelper/includes/form.html" %}
+<div class="submit-row">
+  <input type="submit" value="Save" />
+</div>
+</form>
+{% endblock %}

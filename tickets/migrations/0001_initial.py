@@ -5,46 +5,70 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 class Migration(SchemaMigration):
-
     depends_on = (
         ('clients', '0001_initial'),
+        ('taskboard', '0001_initial'),
     )
 
     def forwards(self, orm):
         
-        # Adding model 'Task'
-        db.create_table('taskboard_task', (
+        # Adding model 'Ticket'
+        db.create_table('tickets_ticket', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('priority', self.gf('django.db.models.fields.IntegerField')(null=True)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['clients.Project'])),
-            ('team', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.Group'])),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=250)),
             ('description', self.gf('django.db.models.fields.TextField')()),
-            ('effort', self.gf('django.db.models.fields.IntegerField')()),
-            ('deadline', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('completed', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('blocked', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='NEW', max_length=15)),
+            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
+            ('due_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('submitted_date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2011, 9, 8, 0, 8, 33, 325988))),
+            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['taskboard.Task'], null=True, blank=True)),
             ('tags', self.gf('tagging.fields.TagField')()),
         ))
-        db.send_create_signal('taskboard', ['Task'])
+        db.send_create_signal('tickets', ['Ticket'])
 
-        # Adding model 'TeamStrengthAdjustment'
-        db.create_table('taskboard_teamstrengthadjustment', (
+        # Adding model 'TicketAttachment'
+        db.create_table('tickets_ticketattachment', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('team', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.Group'])),
-            ('start_date', self.gf('django.db.models.fields.DateField')()),
-            ('end_date', self.gf('django.db.models.fields.DateField')()),
+            ('ticket', self.gf('django.db.models.fields.related.ForeignKey')(related_name='attachments', to=orm['tickets.Ticket'])),
+            ('attachment', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
         ))
-        db.send_create_signal('taskboard', ['TeamStrengthAdjustment'])
+        db.send_create_signal('tickets', ['TicketAttachment'])
+
+        # Adding model 'TicketComment'
+        db.create_table('tickets_ticketcomment', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('date', self.gf('django.db.models.fields.DateTimeField')()),
+            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('text', self.gf('django.db.models.fields.TextField')()),
+        ))
+        db.send_create_signal('tickets', ['TicketComment'])
+
+        # Adding model 'TicketLogItem'
+        db.create_table('tickets_ticketlogitem', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('ticket', self.gf('django.db.models.fields.related.ForeignKey')(related_name='history', to=orm['tickets.Ticket'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('description', self.gf('django.db.models.fields.CharField')(max_length=250)),
+            ('frozen_instance', self.gf('django.db.models.fields.TextField')(blank=True)),
+        ))
+        db.send_create_signal('tickets', ['TicketLogItem'])
 
 
     def backwards(self, orm):
         
-        # Deleting model 'Task'
-        db.delete_table('taskboard_task')
+        # Deleting model 'Ticket'
+        db.delete_table('tickets_ticket')
 
-        # Deleting model 'TeamStrengthAdjustment'
-        db.delete_table('taskboard_teamstrengthadjustment')
+        # Deleting model 'TicketAttachment'
+        db.delete_table('tickets_ticketattachment')
+
+        # Deleting model 'TicketComment'
+        db.delete_table('tickets_ticketcomment')
+
+        # Deleting model 'TicketLogItem'
+        db.delete_table('tickets_ticketlogitem')
 
 
     models = {
@@ -109,13 +133,47 @@ class Migration(SchemaMigration):
             'tags': ('tagging.fields.TagField', [], {}),
             'team': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.Group']"})
         },
-        'taskboard.teamstrengthadjustment': {
-            'Meta': {'object_name': 'TeamStrengthAdjustment'},
-            'end_date': ('django.db.models.fields.DateField', [], {}),
+        'taskboard.taskuser': {
+            'Meta': {'object_name': 'TaskUser', 'db_table': "'auth_user'", '_ormbases': ['auth.User'], 'proxy': 'True'}
+        },
+        'tickets.ticket': {
+            'Meta': {'ordering': "('-submitted_date',)", 'object_name': 'Ticket'},
+            'description': ('django.db.models.fields.TextField', [], {}),
+            'due_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'start_date': ('django.db.models.fields.DateField', [], {}),
-            'team': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.Group']"})
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
+            'priority': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['clients.Project']"}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'NEW'", 'max_length': '15'}),
+            'submitted_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2011, 9, 8, 0, 8, 33, 339145)'}),
+            'tags': ('tagging.fields.TagField', [], {}),
+            'task': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['taskboard.Task']", 'null': 'True', 'blank': 'True'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '250'})
+        },
+        'tickets.ticketattachment': {
+            'Meta': {'object_name': 'TicketAttachment'},
+            'attachment': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'ticket': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attachments'", 'to': "orm['tickets.Ticket']"})
+        },
+        'tickets.ticketcomment': {
+            'Meta': {'object_name': 'TicketComment'},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'date': ('django.db.models.fields.DateTimeField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'text': ('django.db.models.fields.TextField', [], {})
+        },
+        'tickets.ticketlogitem': {
+            'Meta': {'object_name': 'TicketLogItem'},
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '250'}),
+            'frozen_instance': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'ticket': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'history'", 'to': "orm['tickets.Ticket']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'tickets.ticketuser': {
+            'Meta': {'object_name': 'TicketUser', 'db_table': "'auth_user'", '_ormbases': ['auth.User'], 'proxy': 'True'}
         }
     }
 
-    complete_apps = ['taskboard']
+    complete_apps = ['tickets']

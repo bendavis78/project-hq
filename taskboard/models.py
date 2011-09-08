@@ -1,49 +1,35 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from orderable.models import OrderableModel
 from tagging.fields import TagField
-
-class Client(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-
-class Project(models.Model):
-    client = models.ForeignKey(Client)
-    name = models.CharField(max_length=200)
-
-    def __unicode__(self):
-        return '[%s] %s' % (self.client.name, self.name)
-
-    class Meta:
-        ordering = ['client', 'name']
-
-class Team(models.Model):
-    name = models.CharField(max_length=50)
-    members = models.ManyToManyField(User)
-
-    def __unicode__(self):
-        return self.name
+from clients.models import Project
 
 class TaskManager(models.Manager):
     def for_sprint(self):
         qs = self.get_query_set()
         return qs
 
+class TaskUser(User):
+    class Meta:
+        proxy = True
+
+    def __unicode__(self):
+        if self.first_name and self.last_name:
+            return '%s %s' % (self.first_name, self.last_name)
+        if self.first_name:
+            return self.first_name
+        return self.username
+
 class Task(OrderableModel):
-    priority = models.IntegerField(null=True)
+    priority = models.IntegerField(null=True, editable=False)
     project = models.ForeignKey(Project)
-    team = models.ForeignKey(Team)
+    team = models.ForeignKey(Group)
+    owner = models.ForeignKey(TaskUser, null=True, blank=True)
     description = models.TextField()
     effort = models.IntegerField()
     deadline = models.DateField(null=True,blank=True)
     completed = models.DateField(null=True,blank=True)
     blocked = models.BooleanField()
-    icebox = models.BooleanField()
     tags = TagField()
 
     ordering_field = 'priority'
@@ -55,11 +41,20 @@ class Task(OrderableModel):
         return 'Task %s' % self.id
     
     @property
+    def status(self):
+        if self.sprint == 0:
+            return 'CURRENT'
+        else:
+            return 'BACKLOG'
+
+    @property
     def sprint(self):
         from . import utils
+        if self.status == 'UNPLANNED':  
+            return None
         return utils.get_task_sprint(self)
 
 class TeamStrengthAdjustment(models.Model):
-    team = models.ForeignKey(Team)
+    team = models.ForeignKey(Group)
     start_date = models.DateField()
     end_date = models.DateField()
