@@ -2,27 +2,30 @@
 
 {% block tickets_content %}
 {{ block.super }}
+<div class="module">
+<h3>Tickets</h3>
 <table id="tickets_list">
   <thead>
-    <th>Project</th>
     <th>Title</th>
-    <th>Status</th>
+    <th>Project</th>
     <th>Owner</th>
     <th>Submitted</th>
     <th>Due</th>
+    <th>Status</th>
   </th>
   </thead>
   <tbody>
     {% for ticket in ticket_list %}
     <tr class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
-      <td class="project"><a href="?project={{ ticket.project.pk }}">{{ ticket.project }}</a></td>
       <td class="title"><a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
-      <td class="status">{{ ticket.get_status_display }}</td>
+      <td class="project"><a href="?project={{ ticket.project.pk }}">{{ ticket.project }}</a></td>
       <td class="owner">{{ ticket.owner.first_name }} {{ ticket.owner.last_name }}</td>
       <td class="submitted">{{ ticket.submitted_date }}</td>
       <td class="due">{{ ticket.due_date|default:"" }}</td>
+      <td class="status">{{ ticket.get_status_display }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+</div>
 {% endblock %}

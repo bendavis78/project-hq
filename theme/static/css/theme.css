@@ -1,0 +1,141 @@
+body{
+	font-family:Helvetica, Helvetica Neue, Arial, sans-serif;
+  color: #4D4D4D;
+  font-size: 13px;
+}
+
+.wrapper{
+	margin:auto;
+	width:960px;
+}
+
+#header-container{
+	background-color:#222936;
+	height:130px;
+	border-bottom:5px solid #000;
+	margin-bottom:50px;
+	-webkit-box-shadow:0 40px 40px -40px #AAA;
+	   -moz-box-shadow:0 40px 40px -40px #AAA;
+	        box-shadow:0 40px 40px -40px #AAA;
+}
+h1, h2, h3{
+  text-shadow: rgba(0,0,0,.2) 2px 2px 5px;
+}
+h2, h3 {
+  margin:30px 0;
+}
+h2{font-size: 30px;}
+h3{
+  font-size: 20px;
+  margin: 1em 0;
+}
+#title, h2, h3{font-weight:normal;}
+
+#title{
+	font-size: 40px;
+	color:white;
+	float:left;
+  margin-top: 50px;
+  text-shadow: 2px 2px 5px #000;
+}
+
+header {
+  background: url('../img/header_bg.png') no-repeat;
+  height: 130px;
+}
+
+header nav{
+	float:right;
+	margin-top:99px;
+}
+
+header nav ul li{
+	display:inline;
+}
+
+nav a{
+	padding:15px;
+	color:white;
+	text-decoration:none;
+  background: -webkit-linear-gradient(top, #3E444F 0, #222936 20px); 
+  border: 1px solid black;
+  border-radius: 10px 10px 0 0;
+  font-size: 1.1em;
+  text-shadow: 1px 1px 2px #000;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5);
+}
+nav a:visited {
+  color:white;
+}
+
+#main p{
+	font:16px/26px Helvetica, Helvetica Neue, Arial;
+	width:620px;
+}
+
+#content header{
+	margin-bottom:50px;
+	padding-bottom:30px;
+	width:700px;
+	-webkit-box-shadow:0 45px 60px -60px #AAA;
+	   -moz-box-shadow:0 45px 60px -60px #AAA;
+	        box-shadow:0 45px 60px -60px #AAA;
+}
+
+#footer-container{
+	background-color:#222936;
+	height:240px;
+	border-top:5px solid #000;
+	margin-top:50px;
+	-webkit-box-shadow:0 -40px 40px -40px #AAA;
+	   -moz-box-shadow:0 -40px 40px -40px #AAA;
+	        box-shadow:0 -40px 40px -40px #AAA;
+}
+
+#footer-container footer{
+	color:white;
+}
+
+#content a, #content a:visited {
+  color: #4d4d4d;
+  text-decoration: none;
+}
+#content p a, #content p a:visited {
+  color: #004A80;
+}
+#content a:hover {
+  text-decoration: underline;
+}
+
+.module {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+  border: 1px solid #222936;
+}
+.module h3 {
+  margin: 0;
+  padding: 5px;
+  border-radius: 5px 5px 0 0;
+  background: -webkit-linear-gradient(top, #585D66 0, #222936 20px); 
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .5);
+  color: #fff;
+}
+
+#content table {
+  width: 100%;
+}
+#content table th, #content table td {
+  text-align: left;
+  padding: 5px;
+}
+#content table td a {
+}
+#content table thead th {
+  color: #777;
+}
+#content table tr.odd {
+  background: #f7f7f7;
+}
+#content table tr.even {
+  background: #ededed;
+}

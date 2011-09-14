@@ -1,0 +1,40 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>{% block title %}{% endblock  %}</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/base.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/theme.css">
+	<script src="{{ STATIC_URL }}js/libs/respond.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+</head>
+<body>
+	<div id="header-container">
+		<header class="wrapper">
+			<h1 id="title">Farstar Dashboard</h1>
+			<nav>
+				<ul>
+					<li><a href="/">Dashboard</a></li>
+					<li><a href="{% url tickets-index %}">Tickets</a></li>
+					<li><a href="{% url taskboard-index %}">Task Board</a></li>
+				</ul>
+			</nav>
+		</header>
+	</div>
+	<div id="main" class="wrapper">
+    <div id="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+	</div>
+	<div id="footer-container">
+		<footer class="wrapper">
+		</footer>
+	</div>
+</body>
+</html>
