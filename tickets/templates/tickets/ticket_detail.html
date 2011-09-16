@@ -3,7 +3,7 @@
 
 {% block tickets_content %}
 <div class="ticket detail">
-  <h2><a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></h2>
+  <h2><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></h2>
   <p><a href="edit/">Edit</a></p>
   <dl>
     <dt>Project:</td><dd>{{ ticket.project }}</dd>

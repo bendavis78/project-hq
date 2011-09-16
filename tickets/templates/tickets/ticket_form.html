@@ -3,10 +3,15 @@
 
 {% block tickets_content %}
 {{ block.super }}
-<form method="POST">{% csrf_token %}
-{% include "formhelper/includes/form.html" %}
-<div class="submit-row">
-  <input type="submit" value="Save" />
+<div class="module">
+  <header>
+    <h3>{% if ticket %}Edit Ticket #{{ ticket.id }}{% else %}New Ticket{% endif %}</h3>
+  </header>
+  <form method="POST">{% csrf_token %}
+  {% include "formhelper/includes/form.html" %}
+  <div class="submit-row">
+    <input type="submit" value="{% if ticket %}Save{% else %}Create{% endif %}" />
+  </div>
+  </form>
 </div>
-</form>
 {% endblock %}

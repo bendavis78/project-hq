@@ -3,9 +3,30 @@
 {% block tickets_content %}
 {{ block.super }}
 <div class="module">
-<h3>Tickets</h3>
+<header>
+  <h3>Tickets</h3>
+  <ul>
+    <li><a href="{% url tickets_create %}"><strong>+</strong> New Ticket</a></li>
+  </ul>
+</header>
+<div class="tools">
+  <div>
+    <label>Owner:</label>
+    <select name="owner">
+      <option>Unassigned</option>
+      <option>My Tickets</option>
+      <option>All</option>
+    </select>
+  </div>
+  <div class="search">
+    <label>Search:</label>
+    <input type="text" name="search" />
+  </div>
+</div>
 <table id="tickets_list">
   <thead>
+    <th><input type="checkbox" class="select-all" /></th>
+    <th>ID</th>
     <th>Title</th>
     <th>Project</th>
     <th>Owner</th>
@@ -17,9 +38,11 @@
   <tbody>
     {% for ticket in ticket_list %}
     <tr class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
+      <td><input type="checkbox" /></td>
+      <td class="id"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}</a></td>
       <td class="title"><a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
-      <td class="project"><a href="?project={{ ticket.project.pk }}">{{ ticket.project }}</a></td>
-      <td class="owner">{{ ticket.owner.first_name }} {{ ticket.owner.last_name }}</td>
+      <td class="project">{{ ticket.project }}</td>
+      <td class="owner">{{ ticket.owner|default:"(unassigned)" }}</td>
       <td class="submitted">{{ ticket.submitted_date }}</td>
       <td class="due">{{ ticket.due_date|default:"" }}</td>
       <td class="status">{{ ticket.get_status_display }}</td>

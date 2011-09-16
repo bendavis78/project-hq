@@ -10,31 +10,34 @@
 
 	<link rel="stylesheet" href="{{ STATIC_URL }}css/base.css">
 	<link rel="stylesheet" href="{{ STATIC_URL }}css/theme.css">
+  <link rel="shortcut icon" href="{{ STATIC_URL }}/img/favicon.ico" />
 	<script src="{{ STATIC_URL }}js/libs/respond.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
 </head>
 <body>
-	<div id="header-container">
-		<header class="wrapper">
-			<h1 id="title">Farstar Dashboard</h1>
-			<nav>
-				<ul>
-					<li><a href="/">Dashboard</a></li>
-					<li><a href="{% url tickets-index %}">Tickets</a></li>
-					<li><a href="{% url taskboard-index %}">Task Board</a></li>
-				</ul>
-			</nav>
-		</header>
-	</div>
-	<div id="main" class="wrapper">
-    <div id="content">
-      {% block content %}
-      {% endblock %}
+  <div id="main">
+    <div id="header-container">
+      <header class="content-wrapper main">
+        <h1 id="title">zOMG Spiffy Board! <span>beta!!!</span></h1>
+        <nav>
+          <ul>
+            <li{% if module == "dashboard" %} class="active"{% endif %}><a href="{% url dashboard_index %}">Dashboard</a></li>
+            <li{% if module == "tickets" %} class="active"{% endif %}><a href="{% url tickets_index %}">Tickets</a></li>
+            <li{% if module == "taskboard" %} class="active"{% endif %}><a href="{% url taskboard_index %}">Planning</a></li>
+          </ul>
+        </nav>
+      </header>
     </div>
-	</div>
-	<div id="footer-container">
-		<footer class="wrapper">
-		</footer>
-	</div>
+    <div id="main" class="content-wrapper">
+      <div id="content">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+    <div id="footer-container">
+      <footer class="content-wrapper">
+      </footer>
+    </div>
+  </div>
 </body>
 </html>

@@ -33,12 +33,12 @@ class Ticket(OrderableModel):
     priority = models.IntegerField(null=True, editable=False)
     project = models.ForeignKey(Project)
     title = models.CharField(max_length=250)
-    description = models.TextField()
     status = models.CharField(max_length=15, choices=TICKET_STATUS_CHOICES, default='NEW')
     owner = models.ForeignKey(TicketUser, null=True, blank=True)
     due_date = models.DateField(null=True, blank=True)
     submitted_date = models.DateTimeField(default=datetime.today, editable=False)
     task = models.ForeignKey(Task, null=True, blank=True, editable=False)
+    description = models.TextField()
     tags = TagField()
     
     ordering_field = 'priority'
@@ -52,10 +52,10 @@ class Ticket(OrderableModel):
     
     @models.permalink
     def get_absolute_url(self):
-        return ('ticket-details', (self.pk,))
-
+        return ('ticket_details', (self.pk,))
+    
     def __str__(self):
-        return self.summary
+        return '(#{id}) {title}'.format(**self.__dict__)
 
 class TicketAttachment(models.Model):
     ticket = models.ForeignKey(Ticket, related_name='attachments')
