@@ -2,20 +2,30 @@
 
 {% block tickets_content %}
 {{ block.super }}
+<div class="page-tools">
+  <ul>
+    <li><a class="btn grey" href="{% url tickets_create %}"><strong>+</strong> New Ticket</a></li>
+  </ul>
+</div>
 <div class="module">
 <header>
   <h3>Tickets</h3>
-  <ul>
-    <li><a href="{% url tickets_create %}"><strong>+</strong> New Ticket</a></li>
-  </ul>
 </header>
 <div class="tools">
   <div>
     <label>Owner:</label>
     <select name="owner">
+      <option>All</option>
       <option>Unassigned</option>
       <option>My Tickets</option>
+    </select>
+  </div>
+  <div>
+    <label>Status:</label>
+    <select name="owner">
       <option>All</option>
+      <option>New</option>
+      <option>Assigned</option>
     </select>
   </div>
   <div class="search">

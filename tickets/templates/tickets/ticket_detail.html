@@ -2,16 +2,25 @@
 {% load markup %}
 
 {% block tickets_content %}
-<div class="ticket detail">
-  <h2><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></h2>
-  <p><a href="edit/">Edit</a></p>
+<div class="page-tools">
+  <ul>
+    <li><a class="btn grey" href="{% url tickets_edit pk=ticket.pk %}">Edit Ticket</a></li>
+  </ul>
+</div>
+<div class="module ticket detail">
+  <header>
+  <h3><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></h3>
+  </header>
   <dl>
     <dt>Project:</td><dd>{{ ticket.project }}</dd>
     <dt>Status:</dt><dd>{{ ticket.get_status_display }}</dd>
     <dt>Owner:</dt><dd>{{ ticket.owner }}</dd>
-    <dt>Submitted on:</dt><dd>{{ ticket.submitted }}</dd>
+    <dt>Date:</dt><dd>{{ ticket.submitted_date }}</dd>
     {% if ticket.due_date %}
     <dt>Due on:</dt><dd>{{ ticket.due_date }}</dd>
+    {% endif %}
+    {% if ticket.tags %}
+    <dt>Tags:</dt><dd>{{ ticket.tags }}</dd>
     {% endif %}
   </dl>
   <div class="description">

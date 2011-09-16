@@ -1,3 +1,6 @@
+/**
+ * Inspired by: http://circuit.themio.net/home.php
+ */
 body{
 	font-family: tahoma, arial, helvetica, sans-serif;
   color: #4D4D4D;
@@ -99,11 +102,6 @@ nav a:visited {
   color:white;
 }
 
-#main p{
-	font:16px/26px Helvetica, Helvetica Neue, Arial;
-	width:620px;
-}
-
 #footer-container{
 	background-color:#222936;
 	height:240px;
@@ -128,16 +126,70 @@ p a, a:visited {
 a:hover {
   text-decoration: underline;
 }
+button, .btn, input[type=submit] {
+  background: #E1E1E1;
+  background: -moz-linear-gradient(top, #E1E1E1 0%, #D2D2D2 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E1E1E1), color-stop(100%,#D2D2D2));
+  background: -webkit-linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  background: -o-linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  background: -ms-linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e1e1e1', endColorstr='#d2d2d2',GradientType=0 );
+  background: linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  -moz-box-shadow: inset 0 1px 0 0 #f1f1f1, 0 1px 0 0px #e3e3e3;
+  -ms-box-shadow: inset 0 1px 0 0 #f1f1f1, 0 1px 0 0px #e3e3e3;
+  -o-box-shadow: inset 0 1px 0 0 #f1f1f1, 0 1px 0 0px #e3e3e3;
+  box-shadow: inset 0 1px 0 0 #f1f1f1, 0 1px 0 0px #e3e3e3;
+  border: 1px solid #979797;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  color: #555;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 1px 0 #EEE;
+  padding: 5px;
+}
+a.btn {
+  text-decoration: none;
+}
+a.btn:visited {
+  color: inherit;
+}
+h2 .btn {
+  font-size: 12px;
+  float: right;
+  margin-top: 10px;
+}
 
+.page-tools {
+  height: 24px;
+  padding: 4px 0;
+}
+.page-tools ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  float: right;
+  height: 14px;
+}
+.page-tools li {
+  float: right;
+}
+.page-tools li:after,
+.page-tools ul:after {
+  clear: both;
+}
 .module {
   width: 100%;
-  border-radius: 5px 5px 0 0;
+  border-radius: 4px;
   border: 1px solid #222936;
 }
 .module header {
   margin: 0;
   padding: 5px 10px;
-  border-radius: 5px 5px 0 0;
+  border-radius: 4px 4px 0 0;
   background: -webkit-linear-gradient(top, #585D66 0, #222936 20px); 
   -webkit-box-shadow: inset 0 1px 2px rgba(255, 255, 255, .5);
      -moz-box-shadow: inset 0 1px 2px rgba(255, 255, 255, .5);
@@ -171,6 +223,13 @@ a:hover {
 }
 .module .tools div {
   float: left;
+  margin: 0 6px;
+}
+.module .tools div:last-child {
+  margin-right: 0;
+}
+.module .tools div:first-child {
+  margin-left: 0;
 }
 .module .tools div label {
   padding-right: 4px;
@@ -220,6 +279,41 @@ a:hover {
   float: left;
   clear: left;
 }
+#content form input[type=submit] {
+  padding: 6px;
+}
 .module form {
   padding: 10px;
+}
+.module table:last-child tr:last-child td:first-child {
+  border-radius: 0 0 0 4px;
+}
+.module table:last-child tr:last-child td:last-child {
+  border-radius: 0 0 4px 0;
+}
+.module > div {
+  padding: 10px;
+}
+.module > dl {
+  padding: 10px;
+  margin-top: 0;
+}
+dl dt {
+  font-weight: bold;
+  float: left;
+  clear: left;
+  width: 100px;
+  height: 16px;
+  margin: 8px 0;
+}
+dl dd {
+  float: left;
+  margin: 8px 0;
+  height: 16px;
+}
+dl + * {
+  clear: both;
+}
+.module.ticket.detail div.description {
+  border-top: 1px solid #d4d4d4;
 }
