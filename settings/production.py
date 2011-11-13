@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': 'farstar_hq_production',
         'USER': 'farstar_hq',
         'PASSWORD': 'lywroysAuv9',
-        'HOST': '',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
