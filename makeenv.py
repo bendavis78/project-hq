@@ -17,7 +17,7 @@ if os.path.exists(env_dir):
         sys.exit(1)
 
 print "Creating virtual environemnt.\n\n***** DO NOT COMMIT THE '%s' FOLDER TO VERSION CONTROL!!! ******\n\n" % env_dir
-p = Popen(['virtualenv', env_dir])
+p = Popen(['virtualenv', '--no-site-packages', env_dir])
 p.communicate()
 if p.returncode != 0:
     sys.exit(1)
