@@ -6,3 +6,4 @@ South
 django-tagging
 textile
 python-memcached
+psycopg2
