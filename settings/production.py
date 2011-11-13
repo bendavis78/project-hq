@@ -15,7 +15,7 @@ DATABASES = {
 
 X_SENDFILE_HEADER = True
 
-PREPEND_WWW = True
+PREPEND_WWW = False
 
 DEFAULT_FROM_EMAIL = 'Farstar HQ <hq@wedontplayfair.com>'
 SERVER_EMAIL = 'errors@web1.farstarserver.com'
