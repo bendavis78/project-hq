@@ -1,4 +1,4 @@
--e git://github.com/django/django.git@6888b4ea78c53c3ba6f26e2de6dc84993971f827#egg=Django-dev
+-e git://github.com/django/django.git@e71787def01e0d2ae326d7ff5c89ae668957d2fc#egg=Django-dev
 South==0.7.3
 distribute==0.6.24
 django-orderable==1.2.1
