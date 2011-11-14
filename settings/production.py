@@ -1,4 +1,5 @@
 from defaults import *
+import os
 
 ENVIRONMENT = 'production'
 
@@ -22,5 +23,6 @@ SERVER_EMAIL = 'errors@web1.farstarserver.com'
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
-import os
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), '..', '..', 'media')
+MEDIA_ROOT = os.path.join(SITE_ROOT, '..', 'media')
+STATIC_ROOT = os.path.join(SITE_ROOT, '..', 'static')
+
