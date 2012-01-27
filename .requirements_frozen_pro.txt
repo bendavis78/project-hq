@@ -5,6 +5,8 @@ django-orderable==1.2.1
 django-tagging==0.3.1
 -e git://github.com/bendavis78/django-formhelper.git@821a1f43d9d01b0eb4e668263f82e85717e7a0fd#egg=formhelper-dev
 gunicorn==0.13.4
+ipdb==0.6.1
+ipython==0.12
 -e git+git@git.farstarserver.com:libfarstar.git@6203001204f2688e15f373b0cf06a1cda6700149#egg=libfarstar-dev
 psycopg2==2.4.2
 python-memcached==1.47
