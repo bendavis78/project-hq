@@ -14,6 +14,7 @@
   <dl>
     <dt>Project:</td><dd>{{ ticket.project }}</dd>
     <dt>Status:</dt><dd>{{ ticket.get_status_display }}</dd>
+    <dt>Submitted by:</dt><dd>{{ ticket.submitted_by }}</dd>
     <dt>Owner:</dt><dd>{{ ticket.owner }}</dd>
     <dt>Date:</dt><dd>{{ ticket.submitted_date }}</dd>
     {% if ticket.due_date %}

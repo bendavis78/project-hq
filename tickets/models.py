@@ -30,11 +30,12 @@ class TicketUser(User):
         return self.username
 
 class Ticket(OrderableModel):
+    submitted_by = models.ForeignKey(TicketUser, related_name='submitted_tickets')
     priority = models.IntegerField(null=True, editable=False)
     project = models.ForeignKey(Project)
     title = models.CharField(max_length=250)
     status = models.CharField(max_length=15, choices=TICKET_STATUS_CHOICES, default='NEW')
-    owner = models.ForeignKey(TicketUser, null=True, blank=True)
+    owner = models.ForeignKey(TicketUser, null=True, blank=True, related_name='owned_tickets')
     due_date = models.DateField(null=True, blank=True)
     submitted_date = models.DateTimeField(default=datetime.today, editable=False)
     task = models.ForeignKey(Task, null=True, blank=True, editable=False)
@@ -53,7 +54,12 @@ class Ticket(OrderableModel):
     @models.permalink
     def get_absolute_url(self):
         return ('ticket_details', (self.pk,))
-    
+   
+    def save(self):
+        if self.status == 'NEW' and self.owner:
+            self.status = 'ASSIGNED'
+        super(Ticket, self).save()
+
     def __str__(self):
         return '(#{id}) {title}'.format(**self.__dict__)
 

@@ -13,6 +13,8 @@
   <link rel="shortcut icon" href="{{ STATIC_URL }}/img/favicon.ico" />
 	<script src="{{ STATIC_URL }}js/libs/respond.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+  {% block extrahead %}
+  {% endblock %}
 </head>
 <body>
   <div id="main">
@@ -26,6 +28,9 @@
             <li{% if module == "taskboard" %} class="active"{% endif %}><a href="{% url taskboard_index %}">Planning</a></li>
           </ul>
         </nav>
+        {% if user.is_authenticated %}
+        <a href="{% url logout %}">Log out</a>
+        {% endif %}
       </header>
     </div>
     <div id="main" class="content-wrapper">

@@ -192,3 +192,5 @@ SOUTH_TESTS_MIGRATE = False
 # These will be configurable later through admin
 TASKBOARD_SPRINT_DAYS = 7
 TASKBOARD_SPRINT_VELOCITY = 10
+
+LOGIN_URL = '/login/'

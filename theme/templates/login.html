@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load formhelper %}
+{% block content %}
+<h2>Log In</h2>
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<form method="post" action="{% url login %}">{% csrf_token %}
+  {% form_field username %}
+  {% form_field password %}
+  <div class="submit-row">
+    <input type="submit" value="login" />
+    <input type="hidden" name="next" value="{{ next }}" />
+  </div>
+</form>
+
+{% endblock %}
