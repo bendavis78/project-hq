@@ -13,7 +13,7 @@
         document.location.href = '.';
       }
     }
-    $('div.tools select').change(function(){
+    $('select.filter').change(function(){
       setParam(this.name, this.value);
     });
   });

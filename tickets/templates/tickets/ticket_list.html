@@ -8,7 +8,27 @@
 {% block tickets_content %}
 {{ block.super }}
 <div class="page-tools">
-  <ul>
+  <ul class="project-selector">
+    <li>
+      <label>Client:</label>
+      <select name="client" class="filter">
+        <option value="">All</option>
+        {% for client in clients %}
+        <option {% if current_client.pk == client.pk %}selected {% endif %}value="{{ client.pk }}">{{ client.name }}</option>
+        {% endfor %}
+      </select>
+    </li>
+    <li>
+      <label>Project:</label>
+      <select name="project" class="filter">
+        <option value="">All</option>
+        {% for project in projects %}
+        <option {% if current_project.pk == project.pk %}selected {% endif %}value="{{ project.pk }}">{{ project.name }}</option>
+        {% endfor %}
+      </select>
+    </li>
+  </ul>
+  <ul class="tools">
     <li><a class="btn grey" href="{% url tickets_create %}"><strong>+</strong> New Ticket</a></li>
   </ul>
 </div>
@@ -19,7 +39,7 @@
 <div class="tools">
   <div>
     <label>Owner:</label>
-    <select name="owner">
+    <select name="owner" class="filter">
       <option value="">All</option>
       <option value="none"{% if params.owner == "none" %} selected{% endif %}>Unassigned</option>
       <option value="me"{% if params.owner == "me" %} selected{% endif %}>My Tickets</option>
@@ -27,7 +47,7 @@
   </div>
   <div>
     <label>Status:</label>
-    <select name="status">
+    <select name="status" class="filter">
       <option value="">All</option>
       <option value="new"{% if params.status == "new" %} selected{% endif %}>New</option>
       <option value="assigned"{% if params.status == "assigned" %} selected{% endif %}>Assigned</option>

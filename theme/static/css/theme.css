@@ -1,6 +1,3 @@
-/**
- * Inspired by: http://circuit.themio.net/home.php
- */
 body{
 	font-family: tahoma, arial, helvetica, sans-serif;
   color: #4D4D4D;
@@ -164,22 +161,49 @@ h2 .btn {
 }
 
 .page-tools {
-  height: 24px;
   padding: 4px 0;
+}
+.page-tools:before, .page-tools:after {
+  content: "";
+  display: table;
+}
+.page-tools:after {
+  clear: both;
 }
 .page-tools ul {
   margin: 0;
   padding: 0;
   list-style-type: none;
-  float: right;
-  height: 14px;
 }
 .page-tools li {
-  float: right;
+  float: left;
 }
-.page-tools li:after,
+.page-tools li a {
+  display: block;
+}
+.page-tools select {
+  padding: 2px 4px;
+}
+.page-tools ul:before, .page-tools ul:after {
+  content: "";
+  display: table;
+}
 .page-tools ul:after {
   clear: both;
+}
+.page-tools ul.tools {
+  float: right;
+}
+.page-tools ul.tools li {
+  margin-left: 10px;
+}
+.page-tools ul.project-selector {
+  list-style: none;
+  padding: 0;
+  float: left;
+}
+.page-tools ul.project-selector li {
+  margin-right: 10px;
 }
 .module {
   width: 100%;
