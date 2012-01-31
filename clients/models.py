@@ -10,7 +10,7 @@ class Client(models.Model):
         ordering = ['name']
 
 class Project(models.Model):
-    client = models.ForeignKey(Client)
+    client = models.ForeignKey(Client, related_name='projects')
     name = models.CharField(max_length=200)
 
     def __unicode__(self):

@@ -197,12 +197,12 @@ h2 .btn {
 .page-tools ul.tools li {
   margin-left: 10px;
 }
-.page-tools ul.project-selector {
+.page-tools ul.filters {
   list-style: none;
   padding: 0;
   float: left;
 }
-.page-tools ul.project-selector li {
+.page-tools ul.filters li {
   margin-right: 10px;
 }
 .module {

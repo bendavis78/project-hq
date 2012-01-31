@@ -8,22 +8,18 @@
 {% block tickets_content %}
 {{ block.super }}
 <div class="page-tools">
-  <ul class="project-selector">
-    <li>
-      <label>Client:</label>
-      <select name="client" class="filter">
-        <option value="">All</option>
-        {% for client in clients %}
-        <option {% if current_client.pk == client.pk %}selected {% endif %}value="{{ client.pk }}">{{ client.name }}</option>
-        {% endfor %}
-      </select>
-    </li>
+  <ul class="filters">
     <li>
       <label>Project:</label>
       <select name="project" class="filter">
         <option value="">All</option>
-        {% for project in projects %}
-        <option {% if current_project.pk == project.pk %}selected {% endif %}value="{{ project.pk }}">{{ project.name }}</option>
+        {% for client in clients %}
+        <optgroup label="{{ client }}">
+          <option value="all_{{ client.pk }}"{% if client.pk == all_client %} selected{% endif %}>All {{ client }}</option>
+          {% for project in client.projects.all %}
+          <option {% if current_project.pk == project.pk %}selected {% endif %}value="{{ project.pk }}">{{ project.name }}</option>
+          {% endfor %}
+        </optgroup>
         {% endfor %}
       </select>
     </li>
