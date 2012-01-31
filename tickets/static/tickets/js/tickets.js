@@ -7,6 +7,10 @@
       } else {
         params[key] = value;
       }
+      if (key == 'client' && value == '') {
+        console.log('client is none');
+        delete params['project'];
+      }
       if (Object.keys(params).length > 0) {
         document.location.href = '?'+$.param(params)
       } else {

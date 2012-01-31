@@ -1,3 +1,4 @@
+from django import http
 from django.views.generic import list, edit, detail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -15,14 +16,12 @@ class TicketList(list.ListView):
 
         if self.params.get('project'):
             self.project = Project.objects.get(pk=self.params['project'])
-            self.client = self.project.client
 
-        elif self.params.get('client'):
+        if self.params.get('client'):
             self.client = Client.objects.get(pk=self.params['client'])
-
-        if self.client:
-            if self.project and self.project.client != self.client:
-                self.project = None
+        
+        if self.client and self.project and self.project.client != self.client:
+            return http.HttpResponseRedirect('./?client={}'.format(self.client.pk))
 
         return super(TicketList, self).get(request, *args, **kwargs)
 
@@ -48,7 +47,7 @@ class TicketList(list.ListView):
         if self.project:
             queryset = queryset.filter(project=self.project)
 
-        if self.params.get('client'):
+        elif self.client:
             queryset = queryset.filter(project__client=self.client)
 
         return queryset
