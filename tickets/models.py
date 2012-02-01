@@ -37,7 +37,7 @@ class TicketUser(User):
 
 class Ticket(OrderableModel):
     submitted_by = models.ForeignKey(TicketUser, related_name='submitted_tickets')
-    priority = models.IntegerField(editable=False, db_index=True)
+    priority = models.IntegerField(null=True, editable=False, db_index=True)
     project = models.ForeignKey(Project)
     title = models.CharField(max_length=250)
     status = models.CharField(max_length=15, choices=TICKET_STATUS_CHOICES, default='NEW')
@@ -68,7 +68,7 @@ class Ticket(OrderableModel):
 
         if self.status == 'CLOSED':
             # unset priority for closed tickets
-            self.priority = ''
+            self.priority = None
 
         if self.priority:
             current = Ticket.objects.get(pk=self.pk)
