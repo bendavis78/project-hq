@@ -19,6 +19,7 @@ TICKET_STATUS_CHOICES = (
 )
 
 TICKET_CLOSED_REASONS = (
+    ('RESOLVED', 'Resolved'),
     ('DUPLICATE', 'Duplicate'),
     ('INVALID', 'Invalid'),
 )
