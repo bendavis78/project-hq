@@ -25,7 +25,7 @@
     {% endif %}
   </dl>
   <div class="description">
-    {{ ticket.description|textile }}
+    {{ ticket.description|urlize|markdown }}
   </div>
 </div>
 {% endblock %}
