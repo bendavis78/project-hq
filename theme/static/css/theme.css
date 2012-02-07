@@ -349,4 +349,10 @@ dl + * {
   width: 800px;
   margin-right: 20px;
 }
-
+.module.ticket.history .event {
+  border-bottom: 1px solid #d4d4d4;
+}
+.module.ticket.history .event a.permalink {
+  color: inherit;
+  text-decoration: none;
+}

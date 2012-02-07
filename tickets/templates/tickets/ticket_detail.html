@@ -45,26 +45,26 @@
     <h3><a href="#comments" id="comments">Comments</a></h3>
   </header>
   {% for event in ticket.events.all %}
-  <div class="event"{% if event.comment_id %} id="C{{ event.comment.pk }}"{% endif %}>
-    <p>
+  <div class="event"{% if event.comment %} id="C{{ event.comment.pk }}"{% endif %}>
+    <p class="info">
       {% spaceless %}
-      {% if event.comment_id %}<a href="#C{{ event.comment.pk }}">{% endif %}
+      {% if event.comment %}<a class="permalink" href="#C{{ event.comment.pk }}">{% endif %}
       <strong>{{ event.user }}</strong> {{ event.date|date }} at {{ event.date|time }}
-      {% if event.comment_id %}</a>{% endif %}
+      {% if event.comment %}</a>{% endif %}
       {% endspaceless %}
     </p>
     {% if event.changes.count > 0 %}
     <div class="changes">
       <ul>
-        {% for change in event.changes %}
-        <li>{{ change.description }}</li>
+        {% for change in event.changes.all %}
+        <li>{{ change.description|markdown }}</li>
         {% endfor %}
       </ul>
     </div>
     {% endif %}
-    {% if event.comment_id %}
+    {% if event.comment %}
     <div class="comment">
-      {{ event.comment|urlize|markdown }}
+      {{ event.comment.message|urlize|markdown }}
     </div>
     {% endif %}
   </div>

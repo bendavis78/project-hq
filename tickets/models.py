@@ -122,8 +122,7 @@ class Ticket(OrderableModel):
         
         if changes:
             for change in changes:
-                change = TicketChange.objects.create(description=change)
-                event.changes.add(change)
+                TicketChange.objects.create(event=event, description=change)
             return event
 
 class TicketAttachment(models.Model):
@@ -136,7 +135,7 @@ class TicketAttachment(models.Model):
 class TicketEvent(models.Model):
     ticket = models.ForeignKey(Ticket, related_name='events')
     date = models.DateTimeField(default=datetime.today)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(TicketUser)
 
 class TicketComment(models.Model):
     event = models.OneToOneField(TicketEvent, related_name='comment')

@@ -73,26 +73,33 @@ class TicketCreate(edit.CreateView):
 
 
 class TicketDetail(detail.DetailView):
+    def get(self, *args, **kwargs):
+        self.comment_form = forms.CommentForm()
+        return super(TicketDetail, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        self.comment_form = forms.CommentForm(self.request.POST)
+        ticket = self.get_object()
+        if self.comment_form.is_valid():
+            data = self.comment_form.cleaned_data
+            if all(v == '' for v in data.values()):
+                return super(TicketDetail, self).get(*args, **kwargs)
+            comment = None
+            event = models.TicketEvent(ticket=ticket, user_id=self.request.user.id)
+            event.save()
+            if data['comment']:
+                comment = models.TicketComment(event=event, message=data['comment'])
+                comment.save()
+            if data['change_status']:
+                ticket.status = data['change_status']
+            if data['closed_reason']:
+                ticket.closed_reason = data['closed_reason']
+            ticket.log_changes(event)
+            ticket.save()
+            return http.HttpResponseRedirect('.')
+        
     def get_context_data(self, **kwargs):
         context = super(TicketDetail, self).get_context_data(**kwargs)
-        ticket = self.object
-        if self.request.method == 'POST':
-            self.comment_form = forms.CommentForm(self.request.POST)
-            if self.comment_form.is_valid():
-                data = self.comment_form.cleaned_data
-                comment = None
-                event = models.TicketEvent(ticket=self, user=self.request.user).save()
-                if data['comment']:
-                    comment = models.TicketComment(event=event, messave=data['comment'])
-                    comment.save()
-                if data['change_status']:
-                    ticket.status = data['change_status']
-                if data['closed_reason']:
-                    ticket.closed_reason = data['closed_reason']
-                ticket.log_changes(event)
-                ticket.save()
-        else:
-            self.comment_form = forms.CommentForm(initial={'ticket':ticket})
         context.update({
             'comment_form': self.comment_form,
         })
