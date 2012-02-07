@@ -1,9 +1,10 @@
--e git://github.com/django/django.git@f92c9bd5eb272d537051c114bf57ed3aec132b48#egg=Django-dev
+-e git://github.com/django/django.git@4e4b3d206d27a77014dd047a608d58d922c8fcd9#egg=Django-dev
+Markdown==2.1.1
 South==0.7.3
 distribute==0.6.24
 django-orderable==1.2.1
 django-tagging==0.3.1
--e git://github.com/bendavis78/django-formhelper.git@821a1f43d9d01b0eb4e668263f82e85717e7a0fd#egg=formhelper-dev
+-e git://github.com/bendavis78/django-formhelper.git@1fc313dde10d6aea1f2352ba6633fbac698d9048#egg=formhelper-dev
 gunicorn==0.13.4
 ipdb==0.6.1
 ipython==0.12
