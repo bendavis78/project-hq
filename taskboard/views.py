@@ -1,2 +1,3 @@
+from django import http
 def index(request):
-    pass
+    return http.HttpResponse('empty')

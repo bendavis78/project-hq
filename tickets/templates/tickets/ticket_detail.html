@@ -1,6 +1,18 @@
 {% extends "tickets/base.html" %}
 {% load markup %}
 
+{% block extrahead %}
+<script>
+(function($){
+  $(document).ready(function(){
+    $('div.field.change-status select').change(function(){
+      $('div.field.closed-reason').toggle(this.value=='CLOSED');
+    }).change();
+  });
+})(jQuery);
+</script>
+{% endblock %}
+
 {% block tickets_content %}
 <div class="page-tools">
   <ul class="tools">
@@ -27,5 +39,43 @@
   <div class="description">
     {{ ticket.description|urlize|markdown }}
   </div>
+</div>
+<div class="module ticket history" id="history">
+  <header>
+    <h3><a href="#comments" id="comments">Comments</a></h3>
+  </header>
+  {% for event in ticket.events.all %}
+  <div class="event"{% if event.comment_id %} id="C{{ event.comment.pk }}"{% endif %}>
+    <p>
+      {% spaceless %}
+      {% if event.comment_id %}<a href="#C{{ event.comment.pk }}">{% endif %}
+      <strong>{{ event.user }}</strong> {{ event.date|date }} at {{ event.date|time }}
+      {% if event.comment_id %}</a>{% endif %}
+      {% endspaceless %}
+    </p>
+    {% if event.changes.count > 0 %}
+    <div class="changes">
+      <ul>
+        {% for change in event.changes %}
+        <li>{{ change.description }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if event.comment_id %}
+    <div class="comment">
+      {{ event.comment|urlize|markdown }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <form method="post">{% csrf_token %}
+    {% with comment_form as form %}
+    {% include "formhelper/includes/form.html" %}
+    {% endwith %}
+    <div class="submit-row">
+      <input type="submit" value="Submit" />
+    </div>
+  </form>
 </div>
 {% endblock %}

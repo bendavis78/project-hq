@@ -1,9 +1,11 @@
+from datetime import datetime
 from django import http
 from django.views.generic import list, edit, detail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from clients.models import Project, Client
 from tickets import models
+from tickets import forms
 
 class TicketList(list.ListView):
     archive = False
@@ -70,6 +72,38 @@ class TicketCreate(edit.CreateView):
         }
 
 
+class TicketDetail(detail.DetailView):
+    def get_context_data(self, **kwargs):
+        context = super(TicketDetail, self).get_context_data(**kwargs)
+        ticket = self.object
+        if self.request.method == 'POST':
+            self.comment_form = forms.CommentForm(self.request.POST)
+            if self.comment_form.is_valid():
+                data = self.comment_form.cleaned_data
+                comment = None
+                event = models.TicketEvent(ticket=self, user=self.request.user).save()
+                if data['comment']:
+                    comment = models.TicketComment(event=event, messave=data['comment'])
+                    comment.save()
+                if data['change_status']:
+                    ticket.status = data['change_status']
+                if data['closed_reason']:
+                    ticket.closed_reason = data['closed_reason']
+                ticket.log_changes(event)
+                ticket.save()
+        else:
+            self.comment_form = forms.CommentForm(initial={'ticket':ticket})
+        context.update({
+            'comment_form': self.comment_form,
+        })
+        return context
+
+class TicketUpdate(edit.UpdateView):
+    def form_valid(self, form):
+        ticket = form.save(commit=False)
+        ticket.log_changes(self.request.user)
+        return super(TicketUpdate, self).form_valid(form)
+    
 opts = {
     'model': models.Ticket,
     'context_object_name': 'ticket',
@@ -81,6 +115,6 @@ list_opts = opts.copy(); list_opts.update({
 index = login_required(TicketList.as_view(**list_opts))
 archive = login_required(TicketList.as_view(**opts))
 create = login_required(TicketCreate.as_view(**opts))
-update = login_required(edit.UpdateView.as_view(**opts))
+update = login_required(TicketUpdate.as_view(**opts))
+detail = login_required(TicketDetail.as_view(**opts))
 delete = login_required(edit.DeleteView.as_view(**opts))
-detail = login_required(detail.DetailView.as_view(**opts))

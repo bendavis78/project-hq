@@ -83,11 +83,48 @@ class Ticket(OrderableModel):
         elif self.status != 'CLOSED':
             max = Ticket.objects.all().aggregate(n=Max('priority'))
             self.priority = max['n'] + 1
-
+        
         super(Ticket, self).save()
 
     def __str__(self):
         return '(#{id}) {title}'.format(**self.__dict__)
+
+    def get_status_description(self):
+        if self.status == 'CLOSED':
+            return 'Closed (%s)' % self.get_closed_reason_display()
+        return self.get_status_display()
+
+    def log_changes(self, event):
+        """
+        Logs any changes to the ticket in the ticket log. Must be called before
+        the .save() method.
+        """
+        if not self.pk:
+            return
+        changes = []
+        old = Ticket.objects.get(pk=self.pk)
+        new = self
+        if old.status != new.status:
+            changes.append('changed status to *%s*' % new.get_status_description())
+        if old.title != new.title:
+            changes.append('changed title to *%s*' % new.title)
+        if old.priority != new.priority:
+            w = old.priority > new.priority and 'raised' or 'lowered'
+            changes.append('%s priority to *%s*' % (w, new.priority))
+        if old.owner != new.owner:
+            changes.append('changed owner to *%s*' % new.owner)
+        if old.due_date != new.due_date:
+            changes.append('changed due date to *%s*' % new.due_date)
+        if old.description != new.description:
+            changes.append('updated description')
+        if old.tags != new.tags:
+            changes.append('changed tags to *%s*' % self.tags)
+        
+        if changes:
+            for change in changes:
+                change = TicketChange.objects.create(description=change)
+                event.changes.add(change)
+            return event
 
 class TicketAttachment(models.Model):
     ticket = models.ForeignKey(Ticket, related_name='attachments')
@@ -96,13 +133,15 @@ class TicketAttachment(models.Model):
     def __unicode__(self):
         return os.path.basename(self.attachment.name)
 
-class TicketComment(models.Model):
-    date = models.DateTimeField()
-    author = models.ForeignKey(User)
-    text = models.TextField()
-
-class TicketLogItem(models.Model):
-    ticket = models.ForeignKey(Ticket, related_name='history')
+class TicketEvent(models.Model):
+    ticket = models.ForeignKey(Ticket, related_name='events')
+    date = models.DateTimeField(default=datetime.today)
     user = models.ForeignKey(User)
+
+class TicketComment(models.Model):
+    event = models.OneToOneField(TicketEvent, related_name='comment')
+    message = models.TextField()
+
+class TicketChange(models.Model):
+    event = models.ForeignKey(TicketEvent, related_name='changes')
     description = models.CharField(max_length=250)
-    frozen_instance = models.TextField(blank=True)
