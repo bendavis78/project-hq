@@ -108,7 +108,9 @@ class TicketDetail(detail.DetailView):
 class TicketUpdate(edit.UpdateView):
     def form_valid(self, form):
         ticket = form.save(commit=False)
-        ticket.log_changes(self.request.user)
+        event = models.TicketEvent(ticket=ticket, user_id=self.request.user.id)
+        event.save()
+        ticket.log_changes(event)
         return super(TicketUpdate, self).form_valid(form)
     
 opts = {
