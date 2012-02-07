@@ -7,3 +7,4 @@ django-tagging
 textile
 python-memcached
 psycopg2
+markdown
