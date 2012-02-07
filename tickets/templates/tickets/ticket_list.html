@@ -45,8 +45,9 @@
     <label>Status:</label>
     <select name="status" class="filter">
       <option value="">All</option>
-      <option value="new"{% if params.status == "new" %} selected{% endif %}>New</option>
-      <option value="assigned"{% if params.status == "assigned" %} selected{% endif %}>Assigned</option>
+      {% for k,v in statuses %}
+      <option value="{{k}}"{% if params.status == k %} selected{% endif %}>{{v}}</option>
+      {% endfor %}
     </select>
   </div>
   <div class="search">

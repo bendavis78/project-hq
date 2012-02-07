@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from clients.models import Project, Client
 from tickets import models
 from tickets import forms
+from tickets.models import TICKET_STATUS_CHOICES
 
 class TicketList(list.ListView):
     archive = False
@@ -39,10 +40,8 @@ class TicketList(list.ListView):
         elif owner:
             queryset = queryset.filter(owner__username=owner)
 
-        if self.params.get('status') == 'assigned':
-            queryset = queryset.filter(status='ASSIGNED')
-        elif self.params.get('status') == 'new':
-            queryset = queryset.filter(status='NEW')
+        if self.params.get('status'):
+            queryset = queryset.filter(status=self.params.get('status'))
 
         if self.project:
             queryset = queryset.filter(project=self.project)
@@ -59,6 +58,7 @@ class TicketList(list.ListView):
             'params': self.params,
             'current_project': self.project,
             'clients': clients,
+            'statuses': TICKET_STATUS_CHOICES,
             'users': User.objects.all(),
             'all_client': self.all_client,
         })
