@@ -1,7 +1,7 @@
 from fabric.api import env, task
 
 env.project = 'farstar-hq'   #The name of this project
-env.repo_base = 'git@git.farstarserver.com:%s.git' % env.project #The base svn repository for this project (ie, parent of trunk)
+env.repo_base = 'git@bitbucket.org:farstar/%s.git' % env.project #The base svn repository for this project (ie, parent of trunk)
 
 # Options ##
 env.use_virtualenv = True # create virtualenv when setting up
