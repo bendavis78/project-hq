@@ -19,6 +19,11 @@
     $('select.filter').change(function(){
       setParam(this.name, this.value);
     });
+    $('input[name=search]').keypress(function(e){
+      if (e.keyCode == 13) {
+        setParam('q', this.value || '__all__');
+      }
+    });
     $('#tickets_list tbody').sortable({
       'axis': 'y',
       'cursor': 'move',

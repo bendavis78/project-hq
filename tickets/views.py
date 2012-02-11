@@ -1,11 +1,13 @@
+import operator
 from django import http
 from django.views.generic import list, edit, detail
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from clients.models import Project, Client
 from tickets import models
 from tickets import forms
-from tickets.models import TICKET_STATUS_CHOICES
+from tickets.models import TICKET_STATUS_CHOICES, TICKET_CLOSED_REASONS
 
 class TicketList(list.ListView):
     archive = False
@@ -18,22 +20,28 @@ class TicketList(list.ListView):
         self.client = None
         self.project = None
         self.all_client = None
+        
+        # params set to "__all__" signal a reset to empty
+        for k, v in self.params.iteritems():
+            if v == '__all__':
+                del self.params[k]
 
         if self.params.get('project'):
-            if self.params['project'] == 'all':
-                del self.params['project']
-            elif self.params['project'].startswith('all_'):
+            if self.params['project'].startswith('all_'):
                 self.all_client = int(self.params['project'].replace('all_', ''))
             else:
                 self.project = Project.objects.get(pk=self.params['project'])
-        
+
         return super(TicketList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = super(TicketList, self).get_queryset()
         if self.archive:
             queryset = queryset.filter(status='CLOSED')
-        queryset = queryset.exclude(status='CLOSED')
+            if self.params.get('closed_reason'):
+                queryset = queryset.filter(closed_reason=self.params['closed_reason'])
+        else:
+            queryset = queryset.exclude(status='CLOSED')
         
         owner = self.params.get('owner')
         if owner == 'none':
@@ -51,6 +59,15 @@ class TicketList(list.ListView):
         elif self.all_client:
             queryset = queryset.filter(project__client=self.all_client)
 
+        if self.params.get('q'):
+            search_fields = ['title', 'description', 'tags']
+            words = self.params['q'].split(' ')
+            qfilters = []
+            for f in search_fields:
+                for w in words:
+                    qfilters.append(Q(**{'%s__icontains' % f:w}))
+            queryset = queryset.filter(reduce(operator.or_, qfilters))
+
         queryset = queryset.order_by('priority')
 
         return queryset
@@ -64,8 +81,10 @@ class TicketList(list.ListView):
             'current_project': self.project,
             'clients': clients,
             'statuses': TICKET_STATUS_CHOICES,
+            'closed_reasons': TICKET_CLOSED_REASONS,
             'users': User.objects.all(),
             'all_client': self.all_client,
+            'archive': self.archive,
         })
         return context
 
@@ -136,9 +155,12 @@ opts = {
 list_opts = opts.copy(); list_opts.update({
     'context_object_name': 'ticket_list',
 })
+archive_opts = list_opts.copy(); archive_opts.update({
+    'archive': True
+})
 
 index = login_required(TicketList.as_view(**list_opts))
-archive = login_required(TicketList.as_view(**opts))
+archive = login_required(TicketList.as_view(**archive_opts))
 create = login_required(TicketCreate.as_view(**opts))
 update = login_required(TicketUpdate.as_view(**opts))
 detail = login_required(TicketDetail.as_view(**opts))

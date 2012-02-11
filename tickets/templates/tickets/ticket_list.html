@@ -15,7 +15,7 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
     <li>
       <label>Project:</label>
       <select name="project" class="filter">
-        <option value="all">All</option>
+        <option value="__all__">All</option>
         {% for client in clients %}
         <optgroup label="{{ client }}">
           <option value="all_{{ client.pk }}"{% if client.pk == all_client %} selected{% endif %}>All {{ client }}</option>
@@ -39,23 +39,33 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
   <div>
     <label>Owner:</label>
     <select name="owner" class="filter">
-      <option value="">All</option>
+      <option value="__all__">All</option>
       <option value="none"{% if params.owner == "none" %} selected{% endif %}>Unassigned</option>
       <option value="me"{% if params.owner == "me" %} selected{% endif %}>My Tickets</option>
     </select>
   </div>
   <div>
+    {% if not archive %}
     <label>Status:</label>
     <select name="status" class="filter">
-      <option value="">All</option>
+      <option value="__all__">All</option>
       {% for k,v in statuses %}
       <option value="{{k}}"{% if params.status == k %} selected{% endif %}>{{v}}</option>
       {% endfor %}
     </select>
+    {% else %}
+    <label>Closed Reason:</label>
+    <select name="closed_reason" class="filter">
+      <option value="__all__">All</option>
+      {% for k,v in closed_reasons %}
+      <option value="{{k}}"{% if params.closed_reason == k %} selected{% endif %}>{{v}}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
   </div>
   <div class="search">
     <label>Search:</label>
-    <input type="text" name="search" />
+    <input type="text" name="search" value="{{ params.q }}" />
   </div>
 </div>
 <table id="tickets_list">
