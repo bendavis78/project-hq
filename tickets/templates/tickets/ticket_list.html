@@ -3,6 +3,9 @@
 {% block tickets_extrahead %}
 <script src="{{ STATIC_URL }}tickets/js/jquery.ba-bbq.min.js"></script>
 <script src="{{ STATIC_URL }}tickets/js/tickets.js"></script>
+<script>
+window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
+</script>
 {% endblock %}
 
 {% block tickets_content %}

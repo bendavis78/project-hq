@@ -12,7 +12,9 @@ class TicketList(list.ListView):
     archive = False
 
     def get(self, request, *args, **kwargs):
-        self.params = request.GET.copy()
+        self.params = request.GET.copy() or request.session.get('last_filter', {})
+        if self.params != request.session.get('last_filter', {}):
+            request.session['last_filter'] = self.params
 
         self.client = None
         self.project = None
@@ -69,8 +71,11 @@ class TicketList(list.ListView):
 
 class TicketCreate(edit.CreateView):
     def get_initial(self):
+        current_filter = self.request.session.get('last_filter', None)
+        project = current_filter.get('project', None)
         return {
             'submitted_by': self.request.user,
+            'project': project,
         }
 
 
