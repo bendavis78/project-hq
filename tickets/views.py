@@ -1,4 +1,3 @@
-from datetime import datetime
 from django import http
 from django.views.generic import list, edit, detail
 from django.contrib.auth.decorators import login_required
@@ -21,7 +20,9 @@ class TicketList(list.ListView):
         self.all_client = None
 
         if self.params.get('project'):
-            if self.params['project'].startswith('all_'):
+            if self.params['project'] == 'all':
+                del self.params['project']
+            elif self.params['project'].startswith('all_'):
                 self.all_client = int(self.params['project'].replace('all_', ''))
             else:
                 self.project = Project.objects.get(pk=self.params['project'])

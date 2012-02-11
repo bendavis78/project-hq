@@ -15,7 +15,7 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
     <li>
       <label>Project:</label>
       <select name="project" class="filter">
-        <option value="">All</option>
+        <option value="all">All</option>
         {% for client in clients %}
         <optgroup label="{{ client }}">
           <option value="all_{{ client.pk }}"{% if client.pk == all_client %} selected{% endif %}>All {{ client }}</option>
