@@ -48,6 +48,8 @@ class TicketList(list.ListView):
         elif self.all_client:
             queryset = queryset.filter(project__client=self.all_client)
 
+        queryset = queryset.order_by('priority')
+
         return queryset
 
     def get_context_data(self, *args, **kwargs):
@@ -112,7 +114,15 @@ class TicketUpdate(edit.UpdateView):
         event.save()
         ticket.log_changes(event)
         return super(TicketUpdate, self).form_valid(form)
+
+def move(request, pk, to):
+    ticket = models.Ticket.objects.get(pk=pk)
+    target = models.Ticket.objects.get(pk=to)
+    ticket.priority = target.priority
+    ticket.save()
+    return http.HttpResponse('')
     
+
 opts = {
     'model': models.Ticket,
     'context_object_name': 'ticket',

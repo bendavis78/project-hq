@@ -71,6 +71,7 @@ class Ticket(OrderableModel):
             self.priority = None
 
         if self.priority:
+            self.priority = int(self.priority)
             current = Ticket.objects.get(pk=self.pk)
             if current.priority > self.priority:
                 # when moving down, increment those between the move

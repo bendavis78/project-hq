@@ -69,7 +69,7 @@
   </thead>
   <tbody>
     {% for ticket in ticket_list %}
-    <tr class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
+    <tr id="ticket_{{ ticket.id }}" class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
       <td><input type="checkbox" /></td>
       <td class="id"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}</a></td>
       <td class="title"><a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
