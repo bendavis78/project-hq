@@ -1,38 +1,17 @@
 import operator
 from django import http
-from django.views.generic import list, edit, detail
+from django.views.generic import edit, detail, list
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
-from clients.models import Project, Client
+from clients.views import ProjectFilterMixin, ProjectItemCreateMixin
 from tickets import models
 from tickets import forms
 from tickets.models import TICKET_STATUS_CHOICES, TICKET_CLOSED_REASONS
+from history.views import CommentViewMixin, HistoryUpdateMixin
 
-class TicketList(list.ListView):
+class TicketList(ProjectFilterMixin, list.ListView):
     archive = False
-
-    def get(self, request, *args, **kwargs):
-        self.params = request.GET.copy() or request.session.get('last_filter', {})
-        if self.params != request.session.get('last_filter', {}):
-            request.session['last_filter'] = self.params
-
-        self.client = None
-        self.project = None
-        self.all_client = None
-        
-        # params set to "__all__" signal a reset to empty
-        for k, v in self.params.iteritems():
-            if v == '__all__':
-                del self.params[k]
-
-        if self.params.get('project'):
-            if self.params['project'].startswith('all_'):
-                self.all_client = int(self.params['project'].replace('all_', ''))
-            else:
-                self.project = Project.objects.get(pk=self.params['project'])
-
-        return super(TicketList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = super(TicketList, self).get_queryset()
@@ -54,10 +33,6 @@ class TicketList(list.ListView):
         if self.params.get('status'):
             queryset = queryset.filter(status=self.params.get('status'))
 
-        if self.project:
-            queryset = queryset.filter(project=self.project)
-        elif self.all_client:
-            queryset = queryset.filter(project__client=self.all_client)
 
         if self.params.get('q'):
             search_fields = ['title', 'description', 'tags']
@@ -74,71 +49,32 @@ class TicketList(list.ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(TicketList, self).get_context_data(*args, **kwargs)
-        clients = Client.objects.order_by('name')
-        
         context.update({
-            'params': self.params,
-            'current_project': self.project,
-            'clients': clients,
             'statuses': TICKET_STATUS_CHOICES,
             'closed_reasons': TICKET_CLOSED_REASONS,
             'users': User.objects.all(),
-            'all_client': self.all_client,
             'archive': self.archive,
         })
         return context
 
 
-class TicketCreate(edit.CreateView):
-    def get_initial(self):
-        current_filter = self.request.session.get('last_filter', None)
-        project = current_filter.get('project', None)
-        return {
-            'submitted_by': self.request.user,
-            'project': project,
-        }
+class TicketCreate(ProjectItemCreateMixin, edit.CreateView):
+    pass
 
+class TicketDetail(CommentViewMixin, detail.DetailView):
+    comment_form_class = forms.CommentForm
+    
+    def save_comment_form(self, comment_form, obj):
+        event = super(TicketDetail, self).save_comment_form(comment_form, obj)
+        data = comment_form.cleaned_data
+        if data['change_status']:
+            obj.status = data['change_status']
+        if data['closed_reason']:
+            obj.closed_reason = data['closed_reason']
+        return event
 
-class TicketDetail(detail.DetailView):
-    def get(self, *args, **kwargs):
-        self.comment_form = forms.CommentForm()
-        return super(TicketDetail, self).get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        self.comment_form = forms.CommentForm(self.request.POST)
-        ticket = self.get_object()
-        if self.comment_form.is_valid():
-            data = self.comment_form.cleaned_data
-            if all(v == '' for v in data.values()):
-                return super(TicketDetail, self).get(*args, **kwargs)
-            comment = None
-            event = models.TicketEvent(ticket=ticket, user_id=self.request.user.id)
-            event.save()
-            if data['comment']:
-                comment = models.TicketComment(event=event, message=data['comment'])
-                comment.save()
-            if data['change_status']:
-                ticket.status = data['change_status']
-            if data['closed_reason']:
-                ticket.closed_reason = data['closed_reason']
-            ticket.log_changes(event)
-            ticket.save()
-            return http.HttpResponseRedirect('.')
-        
-    def get_context_data(self, **kwargs):
-        context = super(TicketDetail, self).get_context_data(**kwargs)
-        context.update({
-            'comment_form': self.comment_form,
-        })
-        return context
-
-class TicketUpdate(edit.UpdateView):
-    def form_valid(self, form):
-        ticket = form.save(commit=False)
-        event = models.TicketEvent(ticket=ticket, user_id=self.request.user.id)
-        event.save()
-        ticket.log_changes(event)
-        return super(TicketUpdate, self).form_valid(form)
+class TicketUpdate(HistoryUpdateMixin, edit.UpdateView):
+    pass
 
 def move(request, pk, to):
     ticket = models.Ticket.objects.get(pk=pk)

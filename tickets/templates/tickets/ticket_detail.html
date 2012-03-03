@@ -1,6 +1,8 @@
 {% extends "tickets/base.html" %}
 {% load markup %}
 
+{% block title %}{{ ticket.title }} | {{ block.super }}{% endblock %}
+
 {% block extrahead %}
 <script>
 (function($){
@@ -16,6 +18,7 @@
 {% block tickets_content %}
 <div class="page-tools">
   <ul class="tools">
+    <li><a class="btn grey" href="{% url taskboard_create %}?ticket={{ ticket.pk }}">Convert to Task</a></li>
     <li><a class="btn grey" href="{% url tickets_edit pk=ticket.pk %}">Edit Ticket</a></li>
   </ul>
 </div>
@@ -24,7 +27,7 @@
   <h3><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></h3>
   </header>
   <dl>
-    <dt>Project:</td><dd>{{ ticket.project }}</dd>
+    <dt>Project:</dt><dd>{{ ticket.project }}</dd>
     <dt>Status:</dt><dd>{{ ticket.get_status_display }}</dd>
     <dt>Submitted by:</dt><dd>{{ ticket.submitted_by }}</dd>
     <dt>Owner:</dt><dd>{{ ticket.owner }}</dd>

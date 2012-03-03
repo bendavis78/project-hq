@@ -115,6 +115,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 INSTALLED_APPS = (
     'theme',
     'dashboard',
+    'history',
     'tickets',
     'taskboard',
     'clients',

@@ -1,17 +1,18 @@
 from django.core.cache import cache
 from datetime import datetime, timedelta
-from . import models
-from . import settings
+from taskboard import models
+from taskboard import settings
 import math
 
 def calculate_sprints():
     if cache.get('task_sprints'):
-        return cache.get('task_sprints')
+        return cache.get('task_sprints', 300)
 
     velocity = settings.SPRINT_VELOCITY
     task_sprints = {}
     sprint = 0
     sprint_points = 0
+
     for task in models.Task.objects.filter(completed__isnull=True).order_by('priority'):
         if task.effort + sprint_points > velocity:
             sprint += 1
@@ -21,7 +22,6 @@ def calculate_sprints():
     
     cache.set('task_sprints', task_sprints)
     return task_sprints
-
 
 def get_task_sprint(task):
     task_sprints = calculate_sprints()

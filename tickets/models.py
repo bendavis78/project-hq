@@ -1,11 +1,11 @@
 from django.db import models
-from django.db.models import F, Max
+from django.db.models import Max
 from django.contrib.auth.models import User
-from orderable.models import OrderableModel
 from tagging.fields import TagField
 from clients.models import Project
-from taskboard.models import Task
 from tickets.exceptions import TaskExists
+from orderable.models import OrderableModel
+from history.models import HistoryModel
 from datetime import datetime
 import os
 
@@ -35,7 +35,7 @@ class TicketUser(User):
             return self.first_name
         return self.username
 
-class Ticket(OrderableModel):
+class Ticket(OrderableModel, HistoryModel, models.Model):
     submitted_by = models.ForeignKey(TicketUser, related_name='submitted_tickets')
     priority = models.IntegerField(null=True, editable=False, db_index=True)
     project = models.ForeignKey(Project)
@@ -45,18 +45,13 @@ class Ticket(OrderableModel):
     owner = models.ForeignKey(TicketUser, null=True, blank=True, related_name='owned_tickets')
     due_date = models.DateField(null=True, blank=True)
     submitted_date = models.DateTimeField(default=datetime.today, editable=False)
-    task = models.ForeignKey(Task, null=True, blank=True, editable=False)
     description = models.TextField()
     tags = TagField()
-    
-    ordering_field = 'priority'
 
+    ordering_field = 'priority'
+    
     class Meta:
         ordering = ('priority','-submitted_date')
-    
-    def convert_to_task(self):
-        if self.task:
-            raise TaskExists("A task already exists for this ticket")
     
     @models.permalink
     def get_absolute_url(self):
@@ -69,25 +64,14 @@ class Ticket(OrderableModel):
         if self.status == 'CLOSED':
             # unset priority for closed tickets
             self.priority = None
-
-        if self.priority:
-            self.priority = int(self.priority)
-            current = Ticket.objects.get(pk=self.pk)
-            if current.priority > self.priority:
-                # when moving down, increment those between the move
-                Ticket.objects.filter(priority__lt=current.priority, 
-                        priority__gte=self.priority).update(priority=F('priority')+1)
-            elif current.priority < self.priority:
-                # when moving up, decrement those between the move
-                Ticket.objects.filter(priority__gt=current.priority, 
-                        priority__lte=self.priority).update(priority=F('priority')-1)
-        elif self.status != 'CLOSED':
+        
+        if not self.priority and self.status != 'CLOSED':
             max = Ticket.objects.all().aggregate(n=Max('priority'))
             self.priority = max['n'] + 1
         
         super(Ticket, self).save()
 
-    def __str__(self):
+    def __unicode__(self):
         return '(#{id}) {title}'.format(**self.__dict__)
 
     def get_status_description(self):
@@ -95,16 +79,9 @@ class Ticket(OrderableModel):
             return 'Closed (%s)' % self.get_closed_reason_display()
         return self.get_status_display()
 
-    def log_changes(self, event):
-        """
-        Logs any changes to the ticket in the ticket log. Must be called before
-        the .save() method.
-        """
-        if not self.pk:
-            return
-        changes = []
-        old = Ticket.objects.get(pk=self.pk)
+    def get_changes(self, old):
         new = self
+        changes = []
         if old.status != new.status:
             changes.append('changed status to *%s*' % new.get_status_description())
         if old.title != new.title:
@@ -120,11 +97,8 @@ class Ticket(OrderableModel):
             changes.append('updated description')
         if old.tags != new.tags:
             changes.append('changed tags to *%s*' % self.tags)
+        return changes
         
-        if changes:
-            for change in changes:
-                TicketChange.objects.create(event=event, description=change)
-            return event
 
 class TicketAttachment(models.Model):
     ticket = models.ForeignKey(Ticket, related_name='attachments')
@@ -133,15 +107,3 @@ class TicketAttachment(models.Model):
     def __unicode__(self):
         return os.path.basename(self.attachment.name)
 
-class TicketEvent(models.Model):
-    ticket = models.ForeignKey(Ticket, related_name='events')
-    date = models.DateTimeField(default=datetime.today)
-    user = models.ForeignKey(TicketUser)
-
-class TicketComment(models.Model):
-    event = models.OneToOneField(TicketEvent, related_name='comment')
-    message = models.TextField()
-
-class TicketChange(models.Model):
-    event = models.ForeignKey(TicketEvent, related_name='changes')
-    description = models.CharField(max_length=250)

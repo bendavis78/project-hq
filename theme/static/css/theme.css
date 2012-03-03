@@ -117,7 +117,7 @@ a, a:visited {
   color: #4d4d4d;
   text-decoration: none;
 }
-p a, a:visited {
+p a, p a:visited {
   color: #004A80;
 }
 a:hover {
@@ -159,7 +159,9 @@ h2 .btn {
   float: right;
   margin-top: 10px;
 }
-
+.error {
+  color: red;
+}
 .page-tools {
   padding: 4px 0;
 }
@@ -297,18 +299,34 @@ h2 .btn {
 #content form div.field {
   margin: 8px 0;
 }
+#content form div.field:before, 
+#content form div.field:after {
+  content: "";
+  display: table;
+}
+#content form div.field:after {
+  clear: both;
+}
 #content form div.field label {
   font-weight: bold;
   width: 100px;
   display: block;
   float: left;
-  clear: left;
+}
+#content form div.field div.input {
+  float: left;
 }
 #content form input[type=submit] {
   padding: 6px;
 }
 #content form div.submit-row {
   padding-left: 100px;
+}
+#content form ul.errorlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: red;
 }
 .module form {
   padding: 10px;
