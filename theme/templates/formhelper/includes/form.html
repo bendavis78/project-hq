@@ -1,0 +1,13 @@
+{% load formhelper %}
+{% if form.errors %}
+<p class="error">Please correct the error(s) below</p>
+{% if form.non_field_errors %}
+{{ form.non_field_errors }}
+{% endif %}
+{% endif %}
+{% for field in form.hidden_fields %}
+  {{ field }}
+{% endfor %}
+{% for field in form.visible_fields %}
+  {% form_field field %}
+{% endfor %}

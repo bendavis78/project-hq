@@ -1,0 +1,90 @@
+{% extends "taskboard/base.html" %}
+{% load markup %}
+
+{% block title %}{{ task.title }} | {{ block.super }}{% endblock %}
+
+{% block extrahead %}
+<script>
+(function($){
+  $(document).ready(function(){
+    $('div.field.change-status select').change(function(){
+      $('div.field.closed-reason').toggle(this.value=='CLOSED');
+    }).change();
+  });
+})(jQuery);
+</script>
+{% endblock %}
+
+{% block taskboard_content %}
+<div class="page-tools">
+  <ul class="tools">
+    <li><a class="btn grey" href="{% url taskboard_edit pk=task.pk %}">Edit Task</a></li>
+  </ul>
+</div>
+<div class="module task detail">
+  <header>
+  <h3><a href="{{ task.get_absolute_url }}">{{ task }}</a></h3>
+  </header>
+  <dl>
+    {% if task.ticket %}
+    <dt>Ticket:</dt><dd><a href="{{ task.ticket.get_absolute_url }}" target="_blank">{{ task.ticket }}</a></dd>
+    {% endif %}
+    <dt>Project:</dt><dd>{{ task.project }}</dd>
+    <dt>Team:</dt><dd>{{ task.team }}</dd>
+    <dt>Owner:</dt><dd>{{ task.owner|default:"(unassigned)" }}</dd>
+    {% if task.due_date %}
+    <dt>Due on:</dt><dd>{{ task.due_date }}</dd>
+    {% endif %}
+    <dt>Effort:</dt><dd>{{ task.effort }}</dd>
+    <dt>Sprint:</dt><dd>{{ task.sprint_date|date }}</dd>
+    <dt>Status:</dt><dd>{{ task.get_status_description }}</dd>
+    {% if task.completed %}
+    <dt>Completed Date:</dt><dd>{{ task.completed|date }}</dd>
+    {% endif %}
+    {% if task.tags %}
+    <dt>Tags:</dt><dd>{{ task.tags }}</dd>
+    {% endif %}
+  </dl>
+  <div class="description">
+    {{ task.description|urlize|markdown }}
+  </div>
+</div>
+<div class="module task history" id="history">
+  <header>
+    <h3><a href="#comments" id="comments">Comments</a></h3>
+  </header>
+  {% for event in task.events.all %}
+  <div class="event"{% if event.comment %} id="C{{ event.comment.pk }}"{% endif %}>
+    <p class="info">
+      {% spaceless %}
+      {% if event.comment %}<a class="permalink" href="#C{{ event.comment.pk }}">{% endif %}
+      <strong>{{ event.user }}</strong> {{ event.date|date }} at {{ event.date|time }}
+      {% if event.comment %}</a>{% endif %}
+      {% endspaceless %}
+    </p>
+    {% if event.changes.count > 0 %}
+    <div class="changes">
+      <ul>
+        {% for change in event.changes.all %}
+        <li>{{ change.description|markdown }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if event.comment %}
+    <div class="comment">
+      {{ event.comment.message|urlize|markdown }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <form method="post">{% csrf_token %}
+    {% with comment_form as form %}
+    {% include "formhelper/includes/form.html" %}
+    {% endwith %}
+    <div class="submit-row">
+      <input type="submit" value="Submit" />
+    </div>
+  </form>
+</div>
+{% endblock %}

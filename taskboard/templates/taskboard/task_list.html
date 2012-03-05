@@ -1,0 +1,100 @@
+{% extends "taskboard/base.html" %}
+
+{% block taskboard_extrahead %}
+<script src="{{ STATIC_URL }}taskboard/js/jquery.ba-bbq.min.js"></script>
+<script src="{{ STATIC_URL }}taskboard/js/taskboard.js"></script>
+<script>
+window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
+</script>
+{% endblock %}
+
+{% block taskboard_content %}
+{{ block.super }}
+<div class="page-tools">
+  <ul class="filters">
+    <li>
+      <label>Project:</label>
+      <select name="project" class="filter">
+        <option value="__all__">All</option>
+        {% for client in clients %}
+        <optgroup label="{{ client }}">
+          <option value="all_{{ client.pk }}"{% if client.pk == all_client %} selected{% endif %}>All {{ client }}</option>
+          {% for project in client.projects.all %}
+          <option {% if current_project.pk == project.pk %}selected {% endif %}value="{{ project.pk }}">{{ project.name }}</option>
+          {% endfor %}
+        </optgroup>
+        {% endfor %}
+      </select>
+    </li>
+  </ul>
+  <ul class="tools">
+    <li><a class="btn grey" href="{% url taskboard_create %}"><strong>+</strong> New Task</a></li>
+  </ul>
+</div>
+<div class="module">
+<header>
+  <h3>Tasks</h3>
+</header>
+<div class="tools">
+  <div>
+    <label>Owner:</label>
+    <select name="owner" class="filter">
+      <option value="__all__">All</option>
+      <option value="none"{% if params.owner == "none" %} selected{% endif %}>Unassigned</option>
+      <option value="me"{% if params.owner == "me" %} selected{% endif %}>My Tasks</option>
+    </select>
+  </div>
+  <div>
+    {% if not archive %}
+    <label>Status:</label>
+    <select name="status" class="filter">
+      <option value="__all__">All</option>
+      {% for k,v in statuses %}
+      <option value="{{k}}"{% if params.status == k %} selected{% endif %}>{{v}}</option>
+      {% endfor %}
+    </select>
+    {% else %}
+    <label>Closed Reason:</label>
+    <select name="closed_reason" class="filter">
+      <option value="__all__">All</option>
+      {% for k,v in closed_reasons %}
+      <option value="{{k}}"{% if params.closed_reason == k %} selected{% endif %}>{{v}}</option>
+      {% endfor %}
+    </select>
+    {% endif %}
+  </div>
+  <div class="search">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ params.q }}" />
+  </div>
+</div>
+<table id="taskboard_list">
+  <thead>
+    <th><input type="checkbox" class="select-all" /></th>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Project</th>
+    <th>Owner</th>
+    <th>Due</th>
+    <th>Effort</th>
+    <th>Status</th>
+  </th>
+  </thead>
+  <tbody>
+    {% for task in task_list %}
+    <tr id="task_{{ task.id }}" class="row {% cycle "odd" "even" %} status-{{ task.status|slugify }}{% if task.past_due %} past-due{% endif %}">
+      <td><input type="checkbox" /></td>
+      <td class="id"><a href="{{ task.get_absolute_url }}">{{ task.id }}</a></td>
+      <td class="title"><a href="{{ task.get_absolute_url }}">{{ task.title }}</a></td>
+      <td class="project">{{ task.project }}</td>
+      <td class="owner">{{ task.owner|default:"(unassigned)" }}</td>
+      <td class="due">{{ task.due_date|default:"" }}</td>
+      <td class="effort">{{ task.effort }}</td>
+      <td class="status">{{ task.get_status_description }}</td>
+    </tr>
+    <!-- TODO: SPRINT SEPARATOR GOES HERE -->
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

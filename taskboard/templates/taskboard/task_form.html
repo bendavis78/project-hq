@@ -1,0 +1,22 @@
+{% extends "taskboard/base.html" %}
+{% load formhelper %}
+
+{% block taskboard_content %}
+{{ block.super }}
+<div class="module">
+  <header>
+    <h3>{% if task %}Edit Task #{{ task.id }}{% else %}New Task{% endif %}</h3>
+  </header>
+  <form method="POST">{% csrf_token %}
+  {% if ticket %}
+  <div class="field ticket">
+  <label>Ticket:</label> <span>{{ ticket }}</span>
+  </div>
+  {% endif %}
+  {% include "formhelper/includes/form.html" %}
+  <div class="submit-row">
+    <input type="submit" value="{% if task %}Save{% else %}Create{% endif %}" />
+  </div>
+  </form>
+</div>
+{% endblock %}
