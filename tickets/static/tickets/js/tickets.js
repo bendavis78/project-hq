@@ -24,7 +24,7 @@
         setParam('q', this.value || '__all__');
       }
     });
-    $('#tickets_list tbody').sortable({
+    $('table.sortable-list tbody').sortable({
       'axis': 'y',
       'cursor': 'move',
       'update': function(event, ui) {
@@ -35,8 +35,9 @@
         } else {
           target = ui.item.next(); //up
         }
-        var pk = ui.item.attr('id').replace('ticket_','');
-        var target = target.attr('id').replace('ticket_','');
+        var rel = ui.item.parents('table.sortable-list').attr('rel');
+        var pk = ui.item.attr('id').replace(rel+'_','');
+        var target = target.attr('id').replace(rel+'_','');
         var success;
         $.ajax(pk+'/move/'+target+'/', {
           async: false,
@@ -51,8 +52,8 @@
           return false;
         } else {
           // update zebra striping
-          $('#tickets_list tbody tr:even').not('.ui-*').removeClass('even').addClass('odd');
-          $('#tickets_list tbody tr:odd').not('.ui-*').removeClass('odd').addClass('even');
+          $('table.sortable-list tbody tr:even').not('.ui-*').removeClass('even').addClass('odd');
+          $('table.sortable-list tbody tr:odd').not('.ui-*').removeClass('odd').addClass('even');
           // flash effect
           var prevBgColor = ui.item.css('background-color');
           ui.item.stop().css(

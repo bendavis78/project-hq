@@ -2,7 +2,7 @@
 
 {% block taskboard_extrahead %}
 <script src="{{ STATIC_URL }}taskboard/js/jquery.ba-bbq.min.js"></script>
-<script src="{{ STATIC_URL }}taskboard/js/taskboard.js"></script>
+<script src="{{ STATIC_URL }}tickets/js/tickets.js"></script>
 <script>
 window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
 </script>
@@ -42,33 +42,28 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
       <option value="__all__">All</option>
       <option value="none"{% if params.owner == "none" %} selected{% endif %}>Unassigned</option>
       <option value="me"{% if params.owner == "me" %} selected{% endif %}>My Tasks</option>
+      <optgroup>
+        {% for user in other_users %}
+        <option value="{{ user.username }}">{{ user }}</option>
+        {% endfor %}
+      </optgroup>
     </select>
-  </div>
-  <div>
-    {% if not archive %}
-    <label>Status:</label>
-    <select name="status" class="filter">
-      <option value="__all__">All</option>
-      {% for k,v in statuses %}
-      <option value="{{k}}"{% if params.status == k %} selected{% endif %}>{{v}}</option>
-      {% endfor %}
-    </select>
-    {% else %}
-    <label>Closed Reason:</label>
-    <select name="closed_reason" class="filter">
-      <option value="__all__">All</option>
-      {% for k,v in closed_reasons %}
-      <option value="{{k}}"{% if params.closed_reason == k %} selected{% endif %}>{{v}}</option>
-      {% endfor %}
-    </select>
-    {% endif %}
   </div>
   <div class="search">
     <label>Search:</label>
     <input type="text" name="search" value="{{ params.q }}" />
   </div>
 </div>
-<table id="taskboard_list">
+<div class="actions">
+  <div>
+    <label>Actions:</label>
+    <select name="actions">
+      <option value="">---</option>
+      <option value="mark-copleted">Mark Completed</option>
+    </select>
+  </div>
+</div>
+<table id="taskboard_list sortable-list" rel="task">
   <thead>
     <th><input type="checkbox" class="select-all" /></th>
     <th>ID</th>

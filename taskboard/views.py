@@ -32,23 +32,6 @@ class TaskFormMixin(object):
         self.get_ticket()
         return super(TaskFormMixin, self).post(request, *args, **kwargs)
 
-    def get_initial(self):
-        initial = super(TaskFormMixin, self).get_initial()
-
-        if self.get_object():
-            return initial
-
-        if self.ticket:
-            initial['ticket'] = self.ticket
-            initial['title'] = self.ticket.title
-            initial['description'] = self.ticket.description
-            initial['project'] = self.ticket.project
-
-        if Group.objects.count() > 0:
-            initial['team'] = Group.objects.all()[0]
-
-        return initial
-
     def get_context_data(self, **kwargs):
         context = {
             'ticket': self.ticket,
@@ -60,7 +43,22 @@ class TaskFormMixin(object):
         return reverse('taskboard_index')
 
 class TaskCreate(TaskFormMixin, ProjectItemCreateMixin, edit.CreateView):
-    pass
+    def get_initial(self):
+        initial = super(TaskFormMixin, self).get_initial()
+
+        if self.ticket:
+            initial['ticket'] = self.ticket
+            initial['title'] = self.ticket.title
+            initial['description'] = self.ticket.description
+            initial['project'] = self.ticket.project
+            initial['due_date'] = self.ticket.due_date
+            initial['owner'] = self.ticket.owner
+
+        if Group.objects.count() > 0:
+            initial['team'] = Group.objects.all()[0]
+
+        return initial
+
 
 class TaskUpdate(TaskFormMixin, HistoryUpdateMixin, edit.UpdateView):
     pass

@@ -87,6 +87,9 @@ class Task(OrderableModel, HistoryModel, models.Model):
         return utils.get_sprint_end_date(self.sprint)
 
     def save(self):
+        if not self.pk and self.ticket:
+            self.ticket.status = 'TASK'
+            self.ticket.save()
         # any time a task is changed, delete sprint cache
         cache.delete('task_sprints')
         return super(Task, self).save()
@@ -95,6 +98,8 @@ class Task(OrderableModel, HistoryModel, models.Model):
     def get_absolute_url(self):
         return ('taskboard_details', (self.pk,))
 
+# TODO: we probably don't actually need this.
+# A zero-point task can be created w/ a due date
 class Milestone(models.Model):
     name = models.CharField(max_length=150)
     date = models.DateField()    
