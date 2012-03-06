@@ -45,7 +45,8 @@ class CommentViewMixin(object):
 class HistoryUpdateMixin(object):
     def form_valid(self, form):
         obj = form.save(commit=False)
-        event = models.Event(object=obj, user_id=self.request.user.id)
-        event.save()
-        obj.log_changes(event)
+        if obj.has_changes():
+            event = models.Event(object=obj, user_id=self.request.user.id)
+            obj.log_changes(event)
+            event.save()
         return super(HistoryUpdateMixin, self).form_valid(form)

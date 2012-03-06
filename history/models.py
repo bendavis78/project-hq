@@ -35,22 +35,72 @@ class HistoryModel(models.Model):
     class Meta:
         abstract = True
     
+    def get_old(self):
+        """
+        Retrieves the pre-save object from the database
+        """
+        Model = self.__class__
+        try:
+            return Model.objects.get(pk=self.pk)
+        except Model.DoesNotExist:
+            return None
+
+    def has_changes(self):
+        """
+        Checks unsaved object against current database version
+        for changes
+        """
+        changes = self.get_changes()
+        return changes is not None and len(changes) > 0
+    
     def log_changes(self, event):
         """
-        Logs any changes to the object in the history log. Must be called before
-        the .save() method. Requires implementation of the get_changes() method.
+        Logs any unsaved object changes in the history log. Must be called before
+        the .save() method.
         """
         if not self.pk:
             return
-        changes = []
-        Model = self.__class__
-        old = Model.objects.get(pk=self.pk)
-        changes = self.get_changes(old)
+        changes = self.get_changes()
         if changes:
+            event.save()
             for change in changes:
                 Change.objects.create(event=event, description=change)
             return event
 
-    def get_changes(self, old):
-        return []
+    def get_changes(self):
+        """
+        Get a list of change descriptions of unsaved object
+        """
+        old = self.get_old()
+        new = self
+        changes = []
+        for field in self._meta.fields:
+            func = getattr(self, 'get_{}_change_description'.format(field.name), None)
+            if func is None:
+                func = self.get_change_description
+            if getattr(old, field.name, None) != getattr(new, field.name, None):
+                description = func(field, old)
+                if description:
+                    changes.append(description)
+        return changes
 
+    def get_change_description(self, field, old):
+        old_value = getattr(old, field.name, None)
+        new_value = getattr(self, field.name, None)
+        if len(str(new_value)) > 50:
+            return 'changed {}'.format(field.verbose_name)
+        return 'changed {} from *{}* to *{}*'.format(field.verbose_name, old_value, new_value)
+    
+    @property
+    def changes(self):
+        """
+        Returns a queryset of changes on this object
+        """
+        return Change.objects.filter(event__object_id=self.pk)
+
+    @property
+    def comments(self):
+        """
+        Returns a queryset of comments on this object
+        """
+        return Comment.objects.filter(event__object_id=self.pk)

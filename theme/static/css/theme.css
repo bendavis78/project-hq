@@ -374,3 +374,10 @@ dl + * {
   color: inherit;
   text-decoration: none;
 }
+
+#taskboard_list tr.sprint-separator td {
+  text-align: center;
+  font-weight: bold;
+  background: #FFFCCC;
+  background: -webkit-linear-gradient(top, lemonChiffon 5px, #FFF066 30px)
+}

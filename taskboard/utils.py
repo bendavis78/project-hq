@@ -39,3 +39,7 @@ def get_sprint_date(num=0):
     days = (datetime.today() - ref_date).days
     num_sprints = math.floor(days / settings.SPRINT_DAYS) + num
     return ref_date + timedelta(days=(settings.SPRINT_DAYS*num_sprints))
+
+def get_sprint_end_date(num=0):
+    date = get_sprint_date(num)
+    return date + timedelta(days=settings.SPRINT_DAYS)

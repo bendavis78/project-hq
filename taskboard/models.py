@@ -81,6 +81,11 @@ class Task(OrderableModel, HistoryModel, models.Model):
         from taskboard import utils
         return utils.get_sprint_date(self.sprint)
 
+    @property
+    def sprint_end_date(self):
+        from taskboard import utils
+        return utils.get_sprint_end_date(self.sprint)
+
     def save(self):
         # any time a task is changed, delete sprint cache
         cache.delete('task_sprints')

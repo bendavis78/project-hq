@@ -82,6 +82,9 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
   </thead>
   <tbody>
     {% for task in task_list %}
+    {% ifchanged task.sprint %}
+    <tr class="sprint-separator"><td colspan="8">Sprint: {{ task.sprint_date|date:"M j" }} - {{ task.sprint_end_date|date:"M j" }}</td></tr>
+    {% endifchanged %}
     <tr id="task_{{ task.id }}" class="row {% cycle "odd" "even" %} status-{{ task.status|slugify }}{% if task.past_due %} past-due{% endif %}">
       <td><input type="checkbox" /></td>
       <td class="id"><a href="{{ task.get_absolute_url }}">{{ task.id }}</a></td>
@@ -92,7 +95,6 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
       <td class="effort">{{ task.effort }}</td>
       <td class="status">{{ task.get_status_description }}</td>
     </tr>
-    <!-- TODO: SPRINT SEPARATOR GOES HERE -->
     {% endfor %}
   </tbody>
 </table>

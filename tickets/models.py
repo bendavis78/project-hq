@@ -79,26 +79,10 @@ class Ticket(OrderableModel, HistoryModel, models.Model):
             return 'Closed (%s)' % self.get_closed_reason_display()
         return self.get_status_display()
 
-    def get_changes(self, old):
-        new = self
-        changes = []
-        if old.status != new.status:
-            changes.append('changed status to *%s*' % new.get_status_description())
-        if old.title != new.title:
-            changes.append('changed title to *%s*' % new.title)
-        if old.priority != new.priority:
-            w = old.priority > new.priority and 'raised' or 'lowered'
-            changes.append('%s priority to *%s*' % (w, new.priority))
-        if old.owner != new.owner:
-            changes.append('changed owner to *%s*' % new.owner)
-        if old.due_date != new.due_date:
-            changes.append('changed due date to *%s*' % new.due_date)
-        if old.description != new.description:
-            changes.append('updated description')
-        if old.tags != new.tags:
-            changes.append('changed tags to *%s*' % self.tags)
-        return changes
-        
+    def get_priority_change_description(self, field, old):
+        w = old.priority > self.priority and 'raised' or 'lowered'
+        return '%s priority to *%s*' % (w, self.priority)
+
 
 class TicketAttachment(models.Model):
     ticket = models.ForeignKey(Ticket, related_name='attachments')
