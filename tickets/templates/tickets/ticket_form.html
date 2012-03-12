@@ -1,6 +1,19 @@
 {% extends "tickets/base.html" %}
 {% load formhelper %}
 
+{% block tickets_extrahead %}
+{{ block.super }}
+<script>
+(function($){
+  $(document).ready(function(){
+    $('div.field.status select').change(function(){
+      $('div.field.closed-reason').toggle(this.value == 'CLOSED');
+    }).change();
+  });
+})(jQuery);
+</script>
+{% endblock %}
+
 {% block tickets_content %}
 {{ block.super }}
 <div class="module">
