@@ -1,59 +1,42 @@
 (function($){
   $(document).ready(function(){
-    var setParam = function(key, value) {
-      var params = $.deparam.querystring()
-      if (value == '') {
-        delete params[key];
-      } else {
-        params[key] = value;
-      }
-      if (key == 'client' && value == '') {
-        delete params['project'];
-      }
-      if (Object.keys(params).length > 0) {
-        document.location.href = '?'+$.param(params)
-      } else {
-        document.location.href = '.';
-      }
-    }
-    $('select.filter').change(function(){
-      setParam(this.name, this.value);
-    });
-    $('input[name=search]').keypress(function(e){
-      if (e.keyCode == 13) {
-        setParam('q', this.value || '__all__');
-      }
-    });
-    $('table.sortable-list tbody').sortable({
+    $('.sortable').sortable({
       'axis': 'y',
       'cursor': 'move',
       'update': function(event, ui) {
         var target;
+        var direction;
         // target depends on which direction we're moving
         if (ui.originalPosition.top < ui.position.top) {
+          direction = 'dn';
           target = ui.item.prev(); //dn
         } else {
+          direction = 'up';
           target = ui.item.next(); //up
         }
-        var rel = ui.item.parents('table.sortable-list').attr('rel');
+        var rel = ui.item.parents('.sortable').attr('rel');
         var pk = ui.item.attr('id').replace(rel+'_','');
         var target = target.attr('id').replace(rel+'_','');
         var success;
-        $.ajax(pk+'/move/'+target+'/', {
+        data = {pk: pk, target: target, direction: direction}
+        $(ui.item).parents('.sortable').trigger('pre-move', data);
+        console.log('post-trigger data:', data);
+        $.ajax(pk+'/move/'+data.target+'/', {
           async: false,
           error: function() {
             success = false;
           },
           success: function() {
             success = true;
+            $(ui.item).parents('.sortable').trigger('moved', data);
           },
         });
         if (success == false) {
           return false;
         } else {
           // update zebra striping
-          $('table.sortable-list tbody tr:even').not('.ui-*').removeClass('even').addClass('odd');
-          $('table.sortable-list tbody tr:odd').not('.ui-*').removeClass('odd').addClass('even');
+          $('.sortable .row:even').not('.ui-*').removeClass('even').addClass('odd');
+          $('.sortable .row:odd').not('.ui-*').removeClass('odd').addClass('even');
           // flash effect
           var prevBgColor = ui.item.css('background-color');
           ui.item.stop().css(

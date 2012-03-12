@@ -278,17 +278,16 @@ h2 .btn {
   -moz-box-shadow: 0 1px 1px #BBBBBB inset;
   -webkit-box-shadow: 0 1px 1px #BBBBBB inset;
 }
+.module .tools .buttonlist label {
+  display: block;
+  float: left;
+}
 .module .actions {
   display: none;
 }
-#content table {
-  width: 100%;
-}
-#content table th, #content table td {
-  text-align: left;
-  padding: 5px;
-}
-#content table td a {
+.module .actions .btn {
+  line-height: 22px;
+  padding: 3px 6px;
 }
 #content table thead th {
   color: #777;
@@ -378,9 +377,207 @@ dl + * {
   text-decoration: none;
 }
 
-#taskboard_list tr.sprint-separator td {
+#taskboard_list .iteration-separator {
+  padding: 10px;
   text-align: center;
   font-weight: bold;
-  background: #FFFCCC;
-  background: -webkit-linear-gradient(top, lemonChiffon 5px, #FFF066 30px)
+  color: #333;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  background-color: whiteSmoke;
+  background-image: -moz-linear-gradient(top, white, #E6E6E6);
+  background-image: -ms-linear-gradient(top, white, #E6E6E6);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(white), to(#E6E6E6));
+  background-image: -webkit-linear-gradient(top, white, #E6E6E6);
+  background-image: -o-linear-gradient(top, white, #E6E6E6);
+  background-image: linear-gradient(top, white, #E6E6E6);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  border-color: #E6E6E6 #E6E6E6 #BFBFBF;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+
+#taskboard_list .iteration-separator.scheduled {
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  color: white;
+  background-color: #49AFCD;
+  background-image: -moz-linear-gradient(top, #5BC0DE, #2F96B4);
+  background-image: -ms-linear-gradient(top, #5BC0DE, #2F96B4);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5BC0DE), to(#2F96B4));
+  background-image: -webkit-linear-gradient(top, #5BC0DE, #2F96B4);
+  background-image: -o-linear-gradient(top, #5BC0DE, #2F96B4);
+  background-image: linear-gradient(top, #5BC0DE, #2F96B4);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5bc0de', endColorstr='#2f96b4', GradientType=0);
+  border-color: #2F96B4 #2F96B4 #1F6377;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+
+#taskboard_list #task_iteration_0 {
+  background-color: #5BB75B;
+  background-image: -moz-linear-gradient(top, #62C462, #51A351);
+  background-image: -ms-linear-gradient(top, #62C462, #51A351);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#62C462), to(#51A351));
+  background-image: -webkit-linear-gradient(top, #62C462, #51A351);
+  background-image: -o-linear-gradient(top, #62C462, #51A351);
+  background-image: linear-gradient(top, #62C462, #51A351);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#62c462', endColorstr='#51a351', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+
+#taskboard_list #task_iteration_unscheduled {
+  background-color: #262626;
+  background-image: none;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  color: white;
+}
+#taskboard_list .row.unscheduled {
+  background-color: #E6E6E6;
+}
+
+#taskboard_list_overlay {
+  display: none;
+  position: absolute;
+  background-color: #FFF;
+  opacity: 0.8;
+}
+
+#action_form {
+  margin: 0;
+  padding: 0;
+}
+.biglist {
+  padding: 0 !important;
+}
+.biglist .row {
+  border-bottom: 1px solid #d4d4d4;
+  padding: 10px;
+  background: #fff;
+}
+.biglist .row .col {
+  margin-right: 15px;
+  float: left;
+}
+.biglist .row:before,
+.biglist .row:after {
+  content: "";
+  display: table;
+}
+.biglist .row:after {
+  clear: both;
+}
+.biglist .row .col:before, 
+.biglist .row .col:after {
+  content: "";
+  display: table;
+}
+.biglist .row .col:after {
+  clear: both;
+}
+.biglist .row .col dl {
+  margin: 0;
+  padding: 0;
+}
+.biglist .row .col dl dt {
+  margin: 0;
+  width: 60px;
+}
+.biglist .row .col dl dd {
+  margin: 0;
+}
+.biglist .row .status-label {
+  padding-bottom: 6px;
+}
+.biglist .row .status-label a:hover,
+.biglist .row .status-label span:hover {
+  text-decoration: none;
+}
+.biglist .row .status-label span {
+  padding: 2px 4px 3px;
+  font-size: 11.049999999999999px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #999;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.biglist .row .col.selector {
+  width: 16px;
+  margin-right: 16px;
+  text-align: center;
+}
+.biglist .col.status {
+  width: 85px;
+}
+.biglist .col.summary {
+  width: 620px;
+}
+.biglist .col.properties {
+  width: 
+}
+.biglist .col.selector .icons {
+  width: 16px;
+}
+.biglist .col.summary h4, 
+.biglist .col.summary p {
+  margin: 0;
+}
+.biglist .icons span {
+  font-weight: bold;
+  text-indent: -9999px;
+  width: 16px;
+  height: 16px;
+  display: block;
+  cursor: pointer;
+  margin: 4px auto;
+}
+#tickets_list .col.summary p.submitted_by {
+  font-style: italic;
+}
+#tickets_list .icons span.activity-age-warning {
+  background: url('../img/warning_16.png') no-repeat;
+}
+
+/**** status colors *****/
+/**
+ * Green: #468847;
+ * Blue: #2D6987;
+ * Orange: #F89406;
+ * Red: #B94A48;
+ */
+.biglist .status-label span.new {
+  background-color: #B94A48;
+}
+.biglist .status-label span.feedback {
+  background-color: #F89406;
+}
+.biglist .status-label span.assigned,
+.biglist .status-label span.scheduled {
+  background-color: #2D6987;
+}
+.biglist .status-label span.acknowleged {
+  background-color: #468847;
+}
+.biglist .status-label span.finished {
+  background-color: #468847;
+}
+.biglist .status-label span.blocked {
+  background-color: #F89406;
+}
+.biglist .status-label span.not-started {
+  background-color: #B94A48;
+}
+.biglist .status-label span.started {
+  background-color: #2D6987;
+}
+.biglist .status-label span.backlog {
+}
+.biglist .status-label span.not-scheduled {
 }

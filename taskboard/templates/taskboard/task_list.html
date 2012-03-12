@@ -1,8 +1,10 @@
 {% extends "taskboard/base.html" %}
 
 {% block taskboard_extrahead %}
-<script src="{{ STATIC_URL }}taskboard/js/jquery.ba-bbq.min.js"></script>
-<script src="{{ STATIC_URL }}tickets/js/tickets.js"></script>
+<script src="{{ STATIC_URL }}ui/js/jquery.ba-bbq.min.js"></script>
+<script src="{{ STATIC_URL }}ui/js/filters.js"></script>
+<script src="{{ STATIC_URL }}ui/js/sortable.js"></script>
+<script src="{{ STATIC_URL }}taskboard/js/sortable.js"></script>
 <script>
 window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
 </script>
@@ -63,35 +65,10 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
     </select>
   </div>
 </div>
-<table id="taskboard_list sortable-list" rel="task">
-  <thead>
-    <th><input type="checkbox" class="select-all" /></th>
-    <th>ID</th>
-    <th>Title</th>
-    <th>Project</th>
-    <th>Owner</th>
-    <th>Due</th>
-    <th>Effort</th>
-    <th>Status</th>
-  </th>
-  </thead>
-  <tbody>
-    {% for task in task_list %}
-    {% ifchanged task.sprint %}
-    <tr class="sprint-separator"><td colspan="8">Sprint: {{ task.sprint_date|date:"M j" }} - {{ task.sprint_end_date|date:"M j" }}</td></tr>
-    {% endifchanged %}
-    <tr id="task_{{ task.id }}" class="row {% cycle "odd" "even" %} status-{{ task.status|slugify }}{% if task.past_due %} past-due{% endif %}">
-      <td><input type="checkbox" /></td>
-      <td class="id"><a href="{{ task.get_absolute_url }}">{{ task.id }}</a></td>
-      <td class="title"><a href="{{ task.get_absolute_url }}">{{ task.title }}</a></td>
-      <td class="project">{{ task.project }}</td>
-      <td class="owner">{{ task.owner|default:"(unassigned)" }}</td>
-      <td class="due">{{ task.due_date|default:"" }}</td>
-      <td class="effort">{{ task.effort }}</td>
-      <td class="status">{{ task.get_status_description }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div id="taskboard_list" class="biglist sortable" rel="task">
+  {% include "taskboard/includes/task_list_items.html" %}
+</div>
+<div id="taskboard_list_overlay">
+</div>
 </div>
 {% endblock %}

@@ -114,6 +114,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 INSTALLED_APPS = (
     'theme',
+    'ui',
     'dashboard',
     'history',
     'tickets',
@@ -191,7 +192,13 @@ SKIP_SOUTH_TESTS = True
 SOUTH_TESTS_MIGRATE = False
 
 # These will be configurable later through admin
-TASKBOARD_SPRINT_DAYS = 7
-TASKBOARD_SPRINT_VELOCITY = 10
+TASKBOARD_ITERATION_DAYS = 7
+TASKBOARD_ITERATION_VELOCITY = 12
+TICKETS_ACTIVITY_WARNING_HOURS = (
+    ('NEW', 4),
+    ('ASSIGNED', 4),
+    ('ACKNOWLEGED', 48),
+    ('FEEDBACK', 4),
+)
 
 LOGIN_URL = '/login/'

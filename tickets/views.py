@@ -2,7 +2,6 @@ import operator
 from django import http
 from django.views.generic import edit, detail, list
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.db.models import Q
 from clients.views import ProjectFilterMixin, ProjectItemCreateMixin
 from tickets import models
@@ -25,14 +24,11 @@ class TicketList(ProjectFilterMixin, list.ListView):
         owner = self.params.get('owner')
         if owner == 'none':
             queryset = queryset.filter(owner=None)
-        elif owner == 'me':
-            queryset = queryset.filter(owner=self.request.user)
         elif owner:
             queryset = queryset.filter(owner__username=owner)
 
         if self.params.get('status'):
             queryset = queryset.filter(status=self.params.get('status'))
-
 
         if self.params.get('q'):
             search_fields = ['title', 'description', 'tags']
@@ -49,10 +45,12 @@ class TicketList(ProjectFilterMixin, list.ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(TicketList, self).get_context_data(*args, **kwargs)
+        current_user = models.TicketUser.from_auth_user(self.request.user)
         context.update({
             'statuses': TICKET_STATUS_CHOICES,
             'closed_reasons': TICKET_CLOSED_REASONS,
-            'users': User.objects.all(),
+            'users': models.TicketUser.objects.all(),
+            'current_user': current_user,
             'archive': self.archive,
         })
         return context

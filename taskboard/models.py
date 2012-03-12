@@ -1,5 +1,5 @@
-from django.core.cache import cache
 from django.db import models
+from django.db.models.query import QuerySet
 from django.contrib.auth.models import User, Group
 from tagging.fields import TagField
 from clients.models import Project
@@ -16,10 +16,55 @@ EFFORT_CHOICES = (
     (8, '8')
 )
 
-class TaskManager(models.Manager):
-    def for_sprint(self):
-        qs = self.get_query_set()
+STATUS_CHOICES = (
+    ('NOT_SCHEDULED', 'Not scheduled'),
+    ('BACKLOG', 'Backlog'),
+    ('NOT_STARTED', 'Not Started'),
+    ('STARTED', 'Started'),
+    ('BLOCKED', 'Blocked'),
+    ('FINISHED', 'Finished'),
+)
+
+class TaskFilterMixin(object):
+    def current(self):
+        return self.filter(iteration=0)
+    def backlog(self):
+        return self.filter(status='PLANNED').exclude(self.for_iteration(0))
+
+class TaskQuerySet(TaskFilterMixin, QuerySet):
+    """
+    A QuerySet that provides filters specifc to tasks
+    """
+    def _filter_or_exclude(self, negate, *args, **kwargs):
+        status = kwargs.pop('status', None)
+        iteration = kwargs.pop('iteration', None)
+        qs = super(TaskQuerySet, self)._filter_or_exclude(negate, *args, **kwargs)
+        if iteration is not None:
+            from taskboard import utils
+            try:
+                tasks = utils.get_iterations()[iteration]
+            except KeyError:
+                return self.none()
+            return qs.filter(pk__in=tasks)
+        if status == 'SCHEDULED':
+            return qs.filter(priority__isnull=False, finished_date__isnull=False)
+        if status == 'NOT_SCHEDULED':
+            return qs.exclude(status='SCHEDULED')
+        if status == 'FINISHED':
+            return qs.filter(finished_date__isnull=False)
+        if status == 'STARTED':
+            return qs.filter(started_date__isnull=False, priority__isnull=False)
+        if status == 'BLOCKED':
+            return qs.filter(blocked=True, finished_date__isnull=True)
+        if status == 'NOT_STARTED':
+            return qs.current().filter(started_date__isnull=True)
+        if status == 'BACKLOG':
+            return qs.backlog()
         return qs
+    
+class TaskManager(TaskFilterMixin, models.Manager):
+    def get_query_set(self):
+        return TaskQuerySet(self.model, using=self._db)
 
 class TaskUser(User):
     class Meta:
@@ -32,17 +77,25 @@ class TaskUser(User):
             return self.first_name
         return self.username
 
+
 class Task(OrderableModel, HistoryModel, models.Model):
+    """
+    Task is the meat of the taskboard module. Each task is assigned a priority.
+    If priority is None and is not marked as finished, the task is "unplanned".
+    The task's iteration is automatically calculated based on the tasks effort 
+    setting. If a task is blocked, something is keeping it from being completed.
+    """
     priority = models.IntegerField(null=True, editable=False)
     ticket = models.OneToOneField(Ticket,null=True,blank=True)
     project = models.ForeignKey(Project)
     team = models.ForeignKey(Group)
-    owner = models.ForeignKey(TaskUser, null=True, blank=True)
+    owner = models.ForeignKey(TaskUser, blank=True, default=0)
     title = models.CharField(max_length=250)
     description = models.TextField(blank=True)
     effort = models.IntegerField(choices=EFFORT_CHOICES)
     due_date = models.DateField(null=True,blank=True)
-    completed = models.DateField(null=True,blank=True)
+    started_date = models.DateField('Started date', null=True, blank=True)
+    finished_date = models.DateField('Completed date', null=True,blank=True)
     blocked = models.BooleanField()
     tags = TagField()
 
@@ -51,61 +104,60 @@ class Task(OrderableModel, HistoryModel, models.Model):
     objects = TaskManager()
 
     class Meta:
-        ordering = ['-completed','priority']
+        ordering = ['priority']
 
     def __unicode__(self):
         return self.title
     
     @property
     def status(self):
-        if self.completed:
-            return 'COMPLETED'
-        if self.sprint == 0:
-            return 'CURRENT'
+        # order matters here
+        if self.finished_date:
+            return 'FINISHED'
+        if self.priority is None:
+            return 'NOT_SCHEDULED'
+        if self.blocked:
+            return 'BLOCKED'
+        if self.started_date:
+            return 'STARTED'
+        if self.iteration == 0:
+            return 'NOT_STARTED'
         return 'BACKLOG'
     
     def get_status_description(self):
-        return {
-            'COMPLETED': 'Completed',
-            'CURRENT': 'In progress',
-            'BACKLOG': 'Backlog',
-        }[self.status]
+        return dict(STATUS_CHOICES)[self.status]
 
     @property
-    def sprint(self):
+    def iteration(self):
         from taskboard import utils
-        return utils.get_task_sprint(self)
+        return utils.get_task_iteration(self)
 
     @property
-    def sprint_date(self):
+    def iteration_date(self):
         from taskboard import utils
-        return utils.get_sprint_date(self.sprint)
+        return utils.get_iteration_date(self.iteration)
 
     @property
-    def sprint_end_date(self):
+    def iteration_end_date(self):
         from taskboard import utils
-        return utils.get_sprint_end_date(self.sprint)
+        return utils.get_iteration_end_date(self.iteration)
 
     def save(self):
-        if not self.pk and self.ticket:
-            self.ticket.status = 'TASK'
+        # Note: The sprint cache is updated on each save by the post_save 
+        # signal within listeners.py
+        if self.ticket and self.ticket.status in ('NEW', 'ASSIGNED', 'ACKNOWLEGED'):
+            if not self.priority:
+                self.ticket.status = 'ACKNOWLEGED'
+            else:
+                self.ticket.status = 'SCHEDULED'
             self.ticket.save()
-        # any time a task is changed, delete sprint cache
-        cache.delete('task_sprints')
+        if self.finished_date is not None:
+            self.priority = None
         return super(Task, self).save()
 
     @models.permalink
     def get_absolute_url(self):
         return ('taskboard_details', (self.pk,))
-
-# TODO: we probably don't actually need this.
-# A zero-point task can be created w/ a due date
-class Milestone(models.Model):
-    name = models.CharField(max_length=150)
-    date = models.DateField()    
-
-    def __unicode__(self):
-        return '{} - {}'.format(self.date, self.name)
 
 class TeamStrengthAdjustment(models.Model):
     team = models.ForeignKey(Group)

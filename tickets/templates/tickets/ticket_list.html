@@ -1,8 +1,11 @@
 {% extends "tickets/base.html" %}
+{% load ui_tags %}
 
 {% block tickets_extrahead %}
-<script src="{{ STATIC_URL }}tickets/js/jquery.ba-bbq.min.js"></script>
-<script src="{{ STATIC_URL }}tickets/js/tickets.js"></script>
+<script src="{{ STATIC_URL }}ui/js/jquery.ba-bbq.min.js"></script>
+<script src="{{ STATIC_URL }}ui/js/filters.js"></script>
+<script src="{{ STATIC_URL }}ui/js/sortable.js"></script>
+<script src="{{ STATIC_URL }}ui/js/actions.js"></script>
 <script>
 window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
 </script>
@@ -35,13 +38,18 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
 <header>
   <h3>Tickets</h3>
 </header>
-<div class="tools">
+<div class="tools filters">
   <div>
     <label>Owner:</label>
     <select name="owner" class="filter">
       <option value="__all__">All</option>
       <option value="none"{% if params.owner == "none" %} selected{% endif %}>Unassigned</option>
-      <option value="me"{% if params.owner == "me" %} selected{% endif %}>My Tickets</option>
+      <option value="{{ user.username }}"{% if params.owner == user.username %} selected{% endif %}>{{ current_user }}</option>
+      {% for u in users %}
+      {% if u.username != user.username %}
+      <option value="{{ u.username }}">{{ u }}</option>
+      {% endif %}
+      {% endfor %}
     </select>
   </div>
   <div>
@@ -68,41 +76,71 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
     <input type="text" name="search" value="{{ params.q }}" />
   </div>
 </div>
-<div class="actions">
+<div class="tools actions">
   <div>
-    <label>Actions:</label>
-    <select name="actions">
-      <option value="">---</option>
-      <option value="mark-copleted">Mark Completed</option>
+    <label>Set Status:</label>
+    <select name="set_status" rel="set_status">
+      <option value="">--------</option>
+      {% for k,v in statuses %}
+      {% if status != "CLOSED" %}{# closed needs a "closed reason" setting #}
+      <option value="{{ k }}">{{ v }}</option>
+      {% endif %}
+      {% endfor %}
     </select>
   </div>
+  <div>
+    <a class="action btn grey" rel="convert_to_task">Convert to Task</a>
+  </div>
 </div>
-<table id="tickets_list" class="sortable-list" rel="ticket">
-  <thead>
-    <th><input type="checkbox" class="select-all" /></th>
-    <th>ID</th>
-    <th>Title</th>
-    <th>Project</th>
-    <th>Owner</th>
-    <th>Submitted</th>
-    <th>Due</th>
-    <th>Status</th>
-  </th>
-  </thead>
-  <tbody>
+<form id="action_form" method="post">
+  <input type="hidden" name="action" />
+  <div id="tickets_list" class="biglist sortable" rel="ticket">
     {% for ticket in ticket_list %}
-    <tr id="ticket_{{ ticket.id }}" class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
-      <td><input type="checkbox" /></td>
-      <td class="id"><a href="{{ ticket.get_absolute_url }}">{{ ticket.id }}</a></td>
-      <td class="title"><a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
-      <td class="project">{{ ticket.project }}</td>
-      <td class="owner">{{ ticket.owner|default:"(unassigned)" }}</td>
-      <td class="submitted">{{ ticket.submitted_date }}</td>
-      <td class="due">{{ ticket.due_date|default:"" }}</td>
-      <td class="status">{{ ticket.get_status_display }}</td>
-    </tr>
+    <div id="ticket_{{ ticket.id }}" class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
+      <div class="col selector">
+        <input type="checkbox" name="selected_ids" value="{{ ticket.pk }}" />
+        <div class="icons">
+          {% if ticket.has_activity_age_warning %}
+          <span class="activity-age-warning" title="Last activity was {{ ticket.get_last_activity_date|date }}">!</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col status">
+        <div class="status-label">
+          <span class="{{ ticket.status|cssclass }}">{{ ticket.get_status_description }}</span>
+        </div>
+        {% if ticket.task %}
+        <div class="status-label">
+          <a href="{% url taskboard_index %}?#{% if ticket.task.iteration >= 0 %}i{{ ticket.task.iteration }}{% else %}u{% endif %}">
+            <span class="{{ ticket.task.status|cssclass }}{% if ticket.task %} task {{ ticket.task.status|cssclass }}{% endif %}">{{ ticket.task.get_status_description }}</span>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+      <div class="col summary">
+        <h4 class="title">
+          <a href="{{ ticket.get_absolute_url }}">
+            <span class="id">#{{ ticket.id }}</span> {{ ticket.title }}
+          </a>
+        </h4>
+        <p class="project">{{ ticket.project }}</p>
+        <p class="submitted_by">
+          Submitted by {{ ticket.submitted_by }} on {{ ticket.submitted_date }}
+        </p>
+      </div>
+      <div class="col properties">
+        <dl>
+          <dt class="owner">Owner:</dt>
+          <dd>{{ ticket.owner }}</dd>
+          {% if ticket.due_date %}
+          <dt class="due{% if ticket.is_past_due %} past_due{% endif %}">Due:</dt>
+          <dd>{{ ticket.due_date|date }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
     {% endfor %}
-  </tbody>
-</table>
+  </div>
+</form>
 </div>
 {% endblock %}

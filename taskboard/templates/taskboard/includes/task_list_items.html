@@ -1,0 +1,45 @@
+{% load ui_tags %}
+
+  {% for task in task_list %}
+  {% ifchanged task.iteration %}
+  {% if task.iteration >= 0 %}
+  <a name="i{{ task.iteration }}"></a>
+  <div id="task_iteration_{{ task.iteration }}" class="iteration-separator scheduled">
+    {% if task.iteration == 0 %}Current {% endif %}Iteration: {{ task.iteration_date|date:"M j" }} - {{ task.iteration_end_date|date:"M j" }}
+  </div>
+  {% else %}
+  <div id="task_iteration_unscheduled" class="iteration-separator">Unscheduled Tasks</div>
+  <a name="u"></a>
+  {% endif %}
+  {% endifchanged %}
+  <div id="task_{{ task.id }}" class="row {% cycle "odd" "even" %}{% if task.iteration < 0 %} unscheduled{% endif %}">
+    <div class="col selector">
+      <input type="checkbox" name="selected_ids" value="{{ task.pk }}" />
+    </div>
+    <div class="col status">
+      <div class="status-label">
+        <span class="{{ task.status|title|cssclass }}">{{ task.get_status_description }}</span>
+      </div>
+      <div class="tags">
+      </div>
+    </div>
+    <div class="col summary">
+      <h4 class="title">
+        <a href="{{ task.get_absolute_url }}">#{{ task.id }} {{ task.title }}</a>
+      </h4>
+      <p class="project">{{ task.project }}</p>
+    </div>
+    <div class="col properties">
+      <dl>
+        <dt class="effort">Effort:</dt>
+        <dd>{{ task.effort }}</dd>
+        <dt class="owner">Owner:</dt>
+        <dd>{{ task.owner }}</dd>
+        {% if task.due_date %}
+        <dt class="due{% if task.is_past_due %} past_due{% endif %}">Due:</dt>
+        <dd>{{ task.due_date|date }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+  {% endfor %}

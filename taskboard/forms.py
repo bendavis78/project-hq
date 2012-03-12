@@ -6,7 +6,6 @@ def optional(choices):
     return (('',''),) + choices
 
 
-
 class CommentForm(CommentForm):
     comment = forms.CharField(widget=forms.Textarea,
             required=False)

@@ -1,8 +1,10 @@
+import operator
 from django import http
 from django.core.urlresolvers import reverse
 from django.views.generic import edit, detail, list
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.db.models import Q, Max
 from clients.views import ProjectFilterMixin, ProjectItemCreateMixin
 from taskboard import models
 from taskboard import forms
@@ -10,7 +12,20 @@ from tickets.models import Ticket
 from history.views import CommentViewMixin, HistoryUpdateMixin
 
 class TaskList(ProjectFilterMixin, list.ListView):
-    pass
+    def get_queryset(self):
+        queryset = super(TaskList, self).get_queryset()
+
+        if self.params.get('q'):
+            search_fields = ['title', 'description', 'tags']
+            words = self.params['q'].split(' ')
+            qfilters = []
+            for f in search_fields:
+                for w in words:
+                    qfilters.append(Q(**{'%s__icontains' % f:w}))
+            queryset = queryset.filter(reduce(operator.or_, qfilters))
+
+        queryset = queryset.order_by('priority')
+        return queryset
 
 class TaskFormMixin(object):
     def get_form_class(self):
@@ -77,10 +92,18 @@ class TaskDetail(CommentViewMixin, detail.DetailView):
 
 def move(request, pk, to):
     task = models.Task.objects.get(pk=pk)
-    target = models.Task.objects.get(pk=to)
-    task.priority = target.priority
+    if to == 'unscheduled':
+        task.priority = None
+    if to == 'last':
+        max = models.Task.objects.aggregate(m=Max('priority'))['m']
+        task.priority = (max and max or 0) + 1
+    else:
+        target = models.Task.objects.get(pk=to)
+        if task.priority == target.priority == None:
+            return http.HttpResponseForbidden('You cannot prioritize unplanned tasks')
+        task.priority = target.priority
     task.save()
-    return http.HttpResponse('')
+    return http.HttpResponse('Successfully moved task {} to {}'.format(pk, to))
 
 opts = {
     'model': models.Task,
@@ -95,3 +118,6 @@ create = login_required(TaskCreate.as_view(**opts))
 update = login_required(TaskUpdate.as_view(**opts))
 detail = login_required(TaskDetail.as_view(**opts))
 delete = login_required(edit.DeleteView.as_view(**opts))
+list_items = login_required(TaskList.as_view(
+        template_name='taskboard/task_list_items.html',
+        **list_opts))

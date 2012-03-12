@@ -1,9 +1,9 @@
 from django.db import models
 from django.db.models import Max
 from django.contrib.auth.models import User
+from django.conf import settings
 from tagging.fields import TagField
 from clients.models import Project
-from tickets.exceptions import TaskExists
 from orderable.models import OrderableModel
 from history.models import HistoryModel
 from datetime import datetime
@@ -13,8 +13,8 @@ TICKET_STATUS_CHOICES = (
     ('NEW', 'New'),
     ('ASSIGNED', 'Assigned'),
     ('ACKNOWLEGED', 'Acknowleged'),
-    ('TASK', 'Scheduled for work'),
-    ('FEEDBACK', 'Awating Feedback'),
+    ('SCHEDULED', 'Scheduled'),
+    ('FEEDBACK', 'Feedback'),
     ('CLOSED', 'Closed'),
 )
 
@@ -34,9 +34,18 @@ class TicketUser(User):
         if self.first_name:
             return self.first_name
         return self.username
+    
+    @classmethod
+    def from_auth_user(cls, user):
+        u = cls()
+        if hasattr(user, '_wrapped'):
+            user = user._wrapped
+        u.__dict__ = user.__dict__
+        return u
 
 class Ticket(OrderableModel, HistoryModel, models.Model):
     submitted_by = models.ForeignKey(TicketUser, related_name='submitted_tickets')
+    submitted_date = models.DateTimeField(default=datetime.today, editable=False)
     priority = models.IntegerField(null=True, editable=False, db_index=True)
     project = models.ForeignKey(Project)
     title = models.CharField(max_length=250)
@@ -44,7 +53,6 @@ class Ticket(OrderableModel, HistoryModel, models.Model):
     closed_reason = models.CharField(max_length=15, choices=TICKET_CLOSED_REASONS, blank=True)
     owner = models.ForeignKey(TicketUser, null=True, blank=True, related_name='owned_tickets')
     due_date = models.DateField(null=True, blank=True)
-    submitted_date = models.DateTimeField(default=datetime.today, editable=False)
     description = models.TextField()
     tags = TagField()
 
@@ -83,6 +91,21 @@ class Ticket(OrderableModel, HistoryModel, models.Model):
         w = old.priority > self.priority and 'raised' or 'lowered'
         return '%s priority to *%s*' % (w, self.priority)
 
+    
+    def get_last_activity_date(self):
+        events = self.events.order_by('-date')
+        if not events.count() > 0:
+            return self.submitted_date
+        return events[0].date
+
+    def has_activity_age_warning(self):
+        date = self.get_last_activity_date()
+        age = (datetime.today() - date).seconds / 3600.
+        hours = dict(settings.TICKETS_ACTIVITY_WARNING_HOURS).get(self.status)
+        return hours and age >= hours
+
+    def is_past_due(self):
+        return self.due_date and self.due_date <= datetime.today()
 
 class TicketAttachment(models.Model):
     ticket = models.ForeignKey(Ticket, related_name='attachments')
