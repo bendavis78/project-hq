@@ -12,7 +12,7 @@ from tickets.models import Ticket
 from history.views import CommentViewMixin, HistoryUpdateMixin
 
 class TaskList(ProjectFilterMixin, list.ListView):
-    def get_queryset(self):
+    def get_queryset(self, finished=False):
         queryset = super(TaskList, self).get_queryset()
 
         if self.params.get('q'):
@@ -23,8 +23,14 @@ class TaskList(ProjectFilterMixin, list.ListView):
                 for w in words:
                     qfilters.append(Q(**{'%s__icontains' % f:w}))
             queryset = queryset.filter(reduce(operator.or_, qfilters))
+        
+        # include only finished items for current iteration
+        dates = utils.get_iteration_dates(0)
+        queryset = queryset.filter(Q(finished_date__isnull=True) |
+                                   Q(finished_date__range=dates))
 
-        queryset = queryset.order_by('priority')
+        queryset = queryset.order_by('finished_date', 'priority')
+
         return queryset
 
 class TaskFormMixin(object):

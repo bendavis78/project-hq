@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.db.models import Q
 from datetime import datetime, timedelta
 from taskboard import models
 from taskboard import settings
@@ -34,8 +35,12 @@ def calculate_iterations():
     iteration = 0
     iteration_points = 0
     
-    planned_tasks = models.Task.objects.filter(priority__isnull=False)
-    for task in planned_tasks.order_by('priority'):
+    # include finished tasks within current iteration
+    dates = get_iteration_dates(0)
+    planned_tasks = models.Task.objects.filter(Q(priority__isnull=False) |
+                                               Q(finished_date__range=dates))
+
+    for task in planned_tasks.order_by('finished_date', 'priority'):
         if task.effort + iteration_points > velocity:
             iteration += 1
             iteration_points = 0
@@ -64,4 +69,7 @@ def get_iteration_date(num=0):
 
 def get_iteration_end_date(num=0):
     date = get_iteration_date(num)
-    return date + timedelta(days=settings.ITERATION_DAYS)
+    return date + timedelta(days=settings.ITERATION_DAYS-1)
+
+def get_iteration_dates(num=0):
+    return (get_iteration_date(num), get_iteration_end_date(num))
