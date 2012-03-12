@@ -18,7 +18,11 @@
 {% block tickets_content %}
 <div class="page-tools">
   <ul class="tools">
+    {% if ticket.task %}
+    <li><a class="btn grey" href="{{ ticket.task.get_absolute_url }}">View Task Info</a></li>
+    {% else %}
     <li><a class="btn grey" href="{% url taskboard_create %}?ticket={{ ticket.pk }}">Convert to Task</a></li>
+    {% endif %}
     <li><a class="btn grey" href="{% url tickets_edit pk=ticket.pk %}">Edit Ticket</a></li>
   </ul>
 </div>
@@ -48,7 +52,7 @@
     <h3><a href="#comments" id="comments">Comments</a></h3>
   </header>
   {% for event in ticket.events.all %}
-  <div class="event"{% if event.comment %} id="C{{ event.comment.pk }}"{% endif %}>
+  <div id="e{{ event.id }}" class="event"{% if event.comment %} id="C{{ event.comment.pk }}"{% endif %}>
     <p class="info">
       {% spaceless %}
       {% if event.comment %}<a class="permalink" href="#C{{ event.comment.pk }}">{% endif %}

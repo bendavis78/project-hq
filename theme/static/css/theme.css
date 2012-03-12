@@ -160,7 +160,7 @@ h2 .btn {
   margin-top: 10px;
 }
 .error {
-  color: red;
+  color: #B94A48;
 }
 .page-tools {
   padding: 4px 0;
@@ -328,7 +328,7 @@ h2 .btn {
   list-style: none;
   margin: 0;
   padding: 0;
-  color: red;
+  color: #B94A48;
 }
 .module form {
   padding: 10px;
@@ -451,6 +451,12 @@ dl + * {
   margin: 0;
   padding: 0;
 }
+.warning {
+  color: #B94A48;
+}
+.warning a {
+  color: #B94A48;
+}
 .biglist {
   padding: 0 !important;
 }
@@ -485,10 +491,12 @@ dl + * {
 }
 .biglist .row .col dl dt {
   margin: 0;
+  margin-bottom: .3em;
   width: 60px;
 }
 .biglist .row .col dl dd {
   margin: 0;
+  margin-bottom: .3em;
 }
 .biglist .row .status-label {
   padding-bottom: 6px;
@@ -525,9 +533,12 @@ dl + * {
 .biglist .col.selector .icons {
   width: 16px;
 }
-.biglist .col.summary h4, 
-.biglist .col.summary p {
+.biglist .col.summary h4 {
   margin: 0;
+  margin-bottom: .3em;
+}
+.biglist .col.summary p {
+  margin: .3em 0;
 }
 .biglist .icons span {
   font-weight: bold;
@@ -541,7 +552,7 @@ dl + * {
 #tickets_list .col.summary p.submitted_by {
   font-style: italic;
 }
-#tickets_list .icons span.activity-age-warning {
+#tickets_list .icons span.warning {
   background: url('../img/warning_16.png') no-repeat;
 }
 

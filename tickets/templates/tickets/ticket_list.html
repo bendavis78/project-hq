@@ -100,8 +100,8 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
       <div class="col selector">
         <input type="checkbox" name="selected_ids" value="{{ ticket.pk }}" />
         <div class="icons">
-          {% if ticket.has_activity_age_warning %}
-          <span class="activity-age-warning" title="Last activity was {{ ticket.get_last_activity_date|date }}">!</span>
+          {% if ticket.warnings %}
+          <span class="warning" title="{{ ticket.warnings.items.0.1 }}">!</span>
           {% endif %}
         </div>
       </div>
@@ -124,17 +124,19 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
           </a>
         </h4>
         <p class="project">{{ ticket.project }}</p>
-        <p class="submitted_by">
-          Submitted by {{ ticket.submitted_by }} on {{ ticket.submitted_date }}
+        <p class="last-activity{% if ticket.warnings.last_activity %} warning{% endif %}">
+          {% with ticket.get_last_activity as activity %}
+          Last activity: <a href="{{ ticket.get_absolute_url }}#e{{ activity.id }}"><em>{{ activity.user }}</em> on <em>{{ activity.date|date }}</em></a>
+          {% endwith %}
         </p>
       </div>
       <div class="col properties">
         <dl>
           <dt class="owner">Owner:</dt>
-          <dd>{{ ticket.owner }}</dd>
+          <dd class="owner">{{ ticket.owner }}</dd>
           {% if ticket.due_date %}
-          <dt class="due{% if ticket.is_past_due %} past_due{% endif %}">Due:</dt>
-          <dd>{{ ticket.due_date|date }}</dd>
+          <dt class="due{% if ticket.warnings.due_date %} warning{% endif %}">Due:</dt>
+          <dd class="due{% if ticket.warnings.due_date %} warning{% endif %}">{{ ticket.due_date|date }}</dd>
           {% endif %}
         </dl>
       </div>

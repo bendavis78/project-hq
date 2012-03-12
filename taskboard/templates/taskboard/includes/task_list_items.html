@@ -15,6 +15,11 @@
   <div id="task_{{ task.id }}" class="row {% cycle "odd" "even" %}{% if task.iteration < 0 %} unscheduled{% endif %}">
     <div class="col selector">
       <input type="checkbox" name="selected_ids" value="{{ task.pk }}" />
+      <div class="icons">
+        {% if ticket.has_activity_age_warning %}
+        <span class="activity-age-warning" title="Last activity was {{ ticket.get_last_activity_date|date }}">!</span>
+        {% endif %}
+      </div>
     </div>
     <div class="col status">
       <div class="status-label">

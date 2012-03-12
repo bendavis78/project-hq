@@ -5,7 +5,7 @@ from django.conf import settings
 from tagging.fields import TagField
 from clients.models import Project
 from orderable.models import OrderableModel
-from history.models import HistoryModel
+from history.models import HistoryModel, Event
 from datetime import datetime
 import os
 
@@ -92,17 +92,27 @@ class Ticket(OrderableModel, HistoryModel, models.Model):
         return '%s priority to *%s*' % (w, self.priority)
 
     
-    def get_last_activity_date(self):
+    def get_last_activity(self):
         events = self.events.order_by('-date')
         if not events.count() > 0:
-            return self.submitted_date
-        return events[0].date
+            return Event(date=self.submitted_date, user_id=self.submitted_by.id, id=0)
+        return events[0]
 
-    def has_activity_age_warning(self):
-        date = self.get_last_activity_date()
+    @property
+    def warnings(self):
+        warnings = {}
+
+        # check last activity date
+        date = self.get_last_activity().date
         age = (datetime.today() - date).seconds / 3600.
         hours = dict(settings.TICKETS_ACTIVITY_WARNING_HOURS).get(self.status)
-        return hours and age >= hours
+        if hours and age >= hours:
+            warnings['last_activity'] = 'Last activity was on {}'.format(date)
+
+        if self.due_date and self.due_date < datetime.today().date():
+            warnings['due_date'] = 'Ticket was due on {}'.format(self.due_date)
+
+        return warnings
 
     def is_past_due(self):
         return self.due_date and self.due_date <= datetime.today()
