@@ -21,6 +21,36 @@ body{
 	-webkit-box-shadow:0 40px 40px -40px #AAA;
 	   -moz-box-shadow:0 40px 40px -40px #AAA;
 	        box-shadow:0 40px 40px -40px #AAA;
+  position: relative;
+}
+#header-container div.messages {
+  position: relative;
+  margin: 0 auto;
+  width: 400px;
+}
+#header-container div.messages ul {
+  margin: 0;
+  position: absolute;
+  top: 5px;
+  padding: 10px;
+  background-color: #F7F7F7;
+  border-radius: 0px 0px 10px 10px; 
+  -moz-border-radius: 0px 0px 10px 10px; 
+  -webkit-border-radius: 0px 0px 10px 10px; 
+  border: 1px solid #D4D4D4;
+  -webkit-box-shadow: 0px 5px 5px -2px rgba(0, 0, 0, .50);
+     -moz-box-shadow: 0px 5px 5px -2px rgba(0, 0, 0, .50);
+          box-shadow: 0px 5px 5px -2px rgba(0, 0, 0, .50);
+}
+#header-container div.messages ul li {
+  margin: 0;
+  list-style: none;
+  padding: 4px 4px 4px 20px;
+  background: url('../img/icn_ok.png') left no-repeat;
+}
+#header-container div.messages li.warning {
+  color: inherit;
+  background: url('../img/icn_warning.png') left no-repeat;
 }
 h1 {
   position: relative;
@@ -454,7 +484,8 @@ dl + * {
 .warning {
   color: #B94A48;
 }
-.warning a {
+.warning a,
+.warning a:visited {
   color: #B94A48;
 }
 .biglist {
@@ -553,7 +584,7 @@ dl + * {
   font-style: italic;
 }
 #tickets_list .icons span.warning {
-  background: url('../img/warning_16.png') no-repeat;
+  background: url('../img/icn_warning.png') no-repeat;
 }
 
 /**** status colors *****/

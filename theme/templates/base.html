@@ -14,6 +14,11 @@
 	<script src="{{ STATIC_URL }}js/libs/respond.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      $('div.messages ul').delay(3000).slideUp();
+    });
+  </script>
   {% block extrahead %}
   {% endblock %}
 </head>
@@ -33,6 +38,15 @@
           </ul>
         </nav>
       </header>
+      {% if messages %}
+      <div class="messages">
+        <ul>
+          {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
     </div>
     <div id="main" class="content-wrapper">
       <div id="content">

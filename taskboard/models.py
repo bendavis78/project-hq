@@ -89,7 +89,7 @@ class Task(OrderableModel, HistoryModel, models.Model):
     ticket = models.OneToOneField(Ticket,null=True,blank=True)
     project = models.ForeignKey(Project)
     team = models.ForeignKey(Group)
-    owner = models.ForeignKey(TaskUser, blank=True, default=0)
+    owner = models.ForeignKey(TaskUser, null=True, blank=True, default=0)
     title = models.CharField(max_length=250)
     description = models.TextField(blank=True)
     effort = models.IntegerField(choices=EFFORT_CHOICES)

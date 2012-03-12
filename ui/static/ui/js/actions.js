@@ -1,7 +1,11 @@
 (function($){
   $(document).ready(function(){
     var checkBoxes = $('div.module .col.selector input[type=checkbox]');
-    function doAction(action) {
+    window.doAction = function(action, action_value) {
+      $('#action_form input[name=action]').val(action);
+      if (action_value) {
+        $('#action_form input[name=action_value]').val(action_value);
+      }
       $('#action_form').submit();
     }
     function toggleActionBar() {
@@ -14,12 +18,12 @@
         $('div.tools.filters').slideDown();
       }
     }
+    checkBoxes.change(toggleActionBar);
     $('#action_form input.select-all').change(function(){
       checkBoxes.each(function(){
         this.checked = True;
         toggleActionBar();
       });
     });
-    checkBoxes.change(toggleActionBar)
   });
 })(jQuery);

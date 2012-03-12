@@ -2,6 +2,8 @@ import operator
 from django import http
 from django.views.generic import edit, detail, list
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from clients.views import ProjectFilterMixin, ProjectItemCreateMixin
 from tickets import models
@@ -81,6 +83,61 @@ def move(request, pk, to):
     ticket.save()
     return http.HttpResponse('')
     
+def action(request):
+    action = request.POST.get('action')
+    value = request.POST.get('action_value', None)
+    ids = request.POST.getlist('ids')
+    queryset = models.Ticket.objects.filter(pk__in=ids)
+    count = queryset.count()
+    msg = None
+
+    if action == 'set-status':
+        if 'CLOSED-' in value:
+            closed_reason = value.split('-')[1]
+            queryset.update(status='CLOSED', closed_reason=closed_reason)
+        else:
+            queryset.update(status=value)
+        msg = "Successfully set status on {} tickets to {}".format(count, value)
+        messages.add_message(request, messages.INFO, msg)
+
+    elif action == 'convert-task':
+        from taskboard.models import Task, TaskUser
+        from django.contrib.auth.models import Group
+        count_success = 0
+        count_failed = 0
+        for ticket in queryset:
+            try:
+                ticket.task
+            except Task.DoesNotExist:
+                task = Task(ticket=ticket)
+                task.title = ticket.title
+                task.desscription = ticket.description
+                task.project = ticket.project
+                task.due_date = ticket.due_date
+                task.team = Group.objects.all()[0]
+                task.effort = 0
+                task.owner = None
+                if ticket.owner:
+                    owner = TaskUser()
+                    owner.__dict__ = ticket.owner.__dict__
+                    task.owner = owner
+                task.save()
+                count_success += 1
+            else:
+                count_failed += 1
+
+        if count_success > 0:
+            msg = "Successfully converted {} tickets to tasks.".format(count_success)
+            messages.add_message(request, messages.INFO, msg)
+        if count_failed > 0:
+            msg = "Some tickets were not converted to tasks because they've already been converted."
+            messages.add_message(request, messages.WARNING, msg)
+
+
+    else:
+        raise ValueError("Invalid Action: {}".format(action))
+
+    return http.HttpResponseRedirect(reverse('tickets_index'))
 
 opts = {
     'model': models.Ticket,

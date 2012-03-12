@@ -2,15 +2,15 @@
 {% load ui_tags %}
 
 {% block tickets_extrahead %}
+{{ block.super }}
 <script src="{{ STATIC_URL }}ui/js/jquery.ba-bbq.min.js"></script>
 <script src="{{ STATIC_URL }}ui/js/filters.js"></script>
 <script src="{{ STATIC_URL }}ui/js/sortable.js"></script>
 <script src="{{ STATIC_URL }}ui/js/actions.js"></script>
 <script>
-window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
+window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}');
 </script>
 {% endblock %}
-
 {% block tickets_content %}
 {{ block.super }}
 <div class="page-tools">
@@ -31,7 +31,7 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
     </li>
   </ul>
   <ul class="tools">
-    <li><a class="btn grey" href="{% url tickets_create %}"><strong>+</strong> New Ticket</a></li>
+    <li><a class="btn grey" href="{% url tickets_create %}"><strong>+ New Ticket</strong></a></li>
   </ul>
 </div>
 <div class="module">
@@ -79,26 +79,30 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}')
 <div class="tools actions">
   <div>
     <label>Set Status:</label>
-    <select name="set_status" rel="set_status">
+    <select name="set_status" onchange="doAction('set-status', this.value);">
       <option value="">--------</option>
       {% for k,v in statuses %}
-      {% if status != "CLOSED" %}{# closed needs a "closed reason" setting #}
+      {% if k != "CLOSED" %}{# closed needs a "closed reason" setting #}
       <option value="{{ k }}">{{ v }}</option>
       {% endif %}
+      {% endfor %}
+      {% for k,v in closed_reasons %}
+      <option value="CLOSED-{{ k }}">Closed: {{ v }}</option>
       {% endfor %}
     </select>
   </div>
   <div>
-    <a class="action btn grey" rel="convert_to_task">Convert to Task</a>
+    <a class="action btn grey" rel="convert_to_task" href="javascript:doAction('convert-task');">Convert to Task</a>
   </div>
 </div>
-<form id="action_form" method="post">
+<form id="action_form" method="post" action="{% url tickets_action %}">{% csrf_token %}
   <input type="hidden" name="action" />
+  <input type="hidden" name="action_value" />
   <div id="tickets_list" class="biglist sortable" rel="ticket">
     {% for ticket in ticket_list %}
     <div id="ticket_{{ ticket.id }}" class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
       <div class="col selector">
-        <input type="checkbox" name="selected_ids" value="{{ ticket.pk }}" />
+        <input type="checkbox" name="ids" value="{{ ticket.pk }}" />
         <div class="icons">
           {% if ticket.warnings %}
           <span class="warning" title="{{ ticket.warnings.items.0.1 }}">!</span>
