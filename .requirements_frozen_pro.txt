@@ -1,4 +1,4 @@
--e git://github.com/django/django.git@4e4b3d206d27a77014dd047a608d58d922c8fcd9#egg=Django-dev
+-e git://github.com/django/django.git@f5d9d36fe2f40738b46bf8da19026cf306099cbf#egg=Django-dev
 Markdown==2.1.1
 South==0.7.3
 distribute==0.6.24
