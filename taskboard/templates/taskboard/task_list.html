@@ -44,12 +44,12 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
     <select name="owner" class="filter">
       <option value="__all__">All</option>
       <option value="none"{% if params.owner == "none" %} selected{% endif %}>Unassigned</option>
-      <option value="me"{% if params.owner == "me" %} selected{% endif %}>My Tasks</option>
-      <optgroup>
-        {% for user in other_users %}
-        <option value="{{ user.username }}">{{ user }}</option>
-        {% endfor %}
-      </optgroup>
+      <option value="{{ user.username }}"{% if params.owner == user.username %} selected{% endif %}>{{ current_user }}</option>
+      {% for u in users %}
+      {% if u.username != user.username %}
+      <option value="{{ u.username }}">{{ u }}</option>
+      {% endif %}
+      {% endfor %}
     </select>
   </div>
   <div class="search">

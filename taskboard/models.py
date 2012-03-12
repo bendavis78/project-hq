@@ -77,6 +77,14 @@ class TaskUser(User):
             return self.first_name
         return self.username
 
+    @classmethod
+    def from_auth_user(cls, user):
+        u = cls()
+        if hasattr(user, '_wrapped'):
+            user = user._wrapped
+        u.__dict__ = user.__dict__
+        return u
+
 
 class Task(OrderableModel, HistoryModel, models.Model):
     """

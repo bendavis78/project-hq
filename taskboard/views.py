@@ -33,6 +33,16 @@ class TaskList(ProjectFilterMixin, list.ListView):
 
         return queryset
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(TaskList, self).get_context_data(*args, **kwargs)
+        context = super(TaskList, self).get_context_data(*args, **kwargs)
+        current_user = models.TaskUser.from_auth_user(self.request.user)
+        context.update({
+            'users': models.TaskUser.objects.all(),
+            'current_user': current_user,
+        })
+        return context
+
 class TaskFormMixin(object):
     def get_form_class(self):
         return forms.TaskCreateForm
