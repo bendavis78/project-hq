@@ -9,6 +9,9 @@ def get_calculated_tasks():
         return cache.get(settings.ITERATION_CACHE_KEY, 3600)
     return calculate_iterations()
 
+def clear_iteration_cache():
+    cache.delete(settings.ITERATION_CACHE_KEY)
+
 def get_iterations():
     iterations = {}
     tasks = get_calculated_tasks()

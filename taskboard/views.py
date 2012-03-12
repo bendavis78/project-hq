@@ -4,10 +4,10 @@ from django.core.urlresolvers import reverse
 from django.views.generic import edit, detail, list
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.contrib import messages
 from django.db.models import Q, Max
 from clients.views import ProjectFilterMixin, ProjectItemCreateMixin
-from taskboard import models
-from taskboard import forms
+from taskboard import models, forms, utils
 from tickets.models import Ticket
 from history.views import CommentViewMixin, HistoryUpdateMixin
 
@@ -104,6 +104,24 @@ def move(request, pk, to):
         task.priority = target.priority
     task.save()
     return http.HttpResponse('Successfully moved task {} to {}'.format(pk, to))
+
+def action(request):
+    action = request.POST.get('action')
+    value = request.POST.get('action_value', None)
+    ids = request.POST.getlist('ids')
+    queryset = models.Task.objects.filter(pk__in=ids)
+    count = queryset.count()
+
+    if action == 'unschedule':
+        queryset.update(priority=None)
+        msg = 'Successfully unscheduled {} tasks'.format(count)
+        utils.clear_iteration_cache() 
+        messages.add_message(request, messages.INFO, msg)
+    else:
+        raise ValueError("Invalid Action: {}".format(action))
+
+    return http.HttpResponseRedirect(reverse('taskboard_index'))
+
 
 opts = {
     'model': models.Task,

@@ -117,6 +117,7 @@ def action(request):
                 task.team = Group.objects.all()[0]
                 task.effort = 0
                 task.owner = None
+                task.priority = None
                 if ticket.owner:
                     owner = TaskUser()
                     owner.__dict__ = ticket.owner.__dict__

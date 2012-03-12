@@ -4,6 +4,7 @@
 <script src="{{ STATIC_URL }}ui/js/jquery.ba-bbq.min.js"></script>
 <script src="{{ STATIC_URL }}ui/js/filters.js"></script>
 <script src="{{ STATIC_URL }}ui/js/sortable.js"></script>
+<script src="{{ STATIC_URL }}ui/js/actions.js"></script>
 <script src="{{ STATIC_URL }}taskboard/js/sortable.js"></script>
 <script>
 window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
@@ -37,7 +38,7 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
 <header>
   <h3>Tasks</h3>
 </header>
-<div class="tools">
+<div class="tools filters">
   <div>
     <label>Owner:</label>
     <select name="owner" class="filter">
@@ -56,18 +57,18 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
     <input type="text" name="search" value="{{ params.q }}" />
   </div>
 </div>
-<div class="actions">
+<div class="tools actions">
   <div>
-    <label>Actions:</label>
-    <select name="actions">
-      <option value="">---</option>
-      <option value="mark-copleted">Mark Completed</option>
-    </select>
+    <a class="action btn grey" href="javascript:doAction('unschedule')">Move to unscheduled</a>
   </div>
 </div>
-<div id="taskboard_list" class="biglist sortable" rel="task">
-  {% include "taskboard/includes/task_list_items.html" %}
-</div>
+<form id="action_form" method="post" action="{% url taskboard_action %}">{% csrf_token %}
+  <input type="hidden" name="action" />
+  <input type="hidden" name="action_value" />
+  <div id="taskboard_list" class="biglist sortable" rel="task">
+    {% include "taskboard/includes/task_list_items.html" %}
+  </div>
+</form>
 <div id="taskboard_list_overlay">
 </div>
 </div>
