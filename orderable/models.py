@@ -39,7 +39,7 @@ class OrderableModel(models.Model):
         f = self.ordering_field
         o = getattr(self, f)
         Model = self.__class__
-        if o:
+        if o and self.pk:
             setattr(self, f, int(o))
             current = Model.objects.get(pk=self.pk)
             current_pos = getattr(current, f)

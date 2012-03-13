@@ -103,7 +103,7 @@ class Task(OrderableModel, HistoryModel, models.Model):
     effort = models.IntegerField(choices=EFFORT_CHOICES)
     due_date = models.DateField(null=True,blank=True)
     started_date = models.DateField('Started date', null=True, blank=True)
-    finished_date = models.DateField('Completed date', null=True,blank=True)
+    finished_date = models.DateField('Finished date', null=True,blank=True)
     blocked = models.BooleanField()
     tags = TagField()
 

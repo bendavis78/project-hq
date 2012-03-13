@@ -57,6 +57,7 @@ class Ticket(OrderableModel, HistoryModel, models.Model):
     tags = TagField()
 
     ordering_field = 'priority'
+    objects = models.Manager() # needed b/c OrderableModel implements a manager
     
     class Meta:
         ordering = ('priority','-submitted_date')
