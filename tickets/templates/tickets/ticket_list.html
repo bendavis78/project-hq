@@ -47,7 +47,7 @@ window.history.replaceState(null, 'Tickets', '?'+'{{ params.urlencode|safe }}');
       <option value="{{ user.username }}"{% if params.owner == user.username %} selected{% endif %}>{{ current_user }}</option>
       {% for u in users %}
       {% if u.username != user.username %}
-      <option value="{{ u.username }}">{{ u }}</option>
+      <option value="{{ u.username }}"{% if params.owner == u.username %} selected{% endif %}>{{ u }}</option>
       {% endif %}
       {% endfor %}
     </select>
