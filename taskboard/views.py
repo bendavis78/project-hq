@@ -52,8 +52,11 @@ class TaskFormMixin(object):
         if self.request.GET.get('ticket'):
             ticket_id = self.request.GET['ticket']
             self.ticket = Ticket.objects.get(pk=ticket_id)
-        elif self.get_object():
-            self.ticket = self.get_object().ticket
+        else:
+            try:
+                self.ticket = self.get_object()
+            except AttributeError:
+                pass
 
     def get(self, request, *args, **kwargs):
         self.get_ticket()
