@@ -78,7 +78,8 @@ class TaskFormMixin(object):
 
 class TaskCreate(TaskFormMixin, ProjectItemCreateMixin, edit.CreateView):
     def get_initial(self):
-        initial = super(TaskFormMixin, self).get_initial()
+        self.initial = {}
+        initial = super(TaskCreate, self).get_initial()
 
         if self.ticket:
             initial['ticket'] = self.ticket
@@ -95,7 +96,10 @@ class TaskCreate(TaskFormMixin, ProjectItemCreateMixin, edit.CreateView):
 
 
 class TaskUpdate(TaskFormMixin, HistoryUpdateMixin, edit.UpdateView):
-    pass
+    def get_initial(self):
+        self.initial = {}
+        return self.initial
+        
 
 class TaskDetail(CommentViewMixin, detail.DetailView):
     comment_form_class = forms.CommentForm
