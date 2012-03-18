@@ -45,6 +45,7 @@ class ProjectFilterMixin(object):
 
 class ProjectItemCreateMixin(object):
     def get_initial(self):
+        self.initial = {}
         initial = super(ProjectItemCreateMixin, self).get_initial()
         if initial is None:
             initial = {}
