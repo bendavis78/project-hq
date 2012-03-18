@@ -28,27 +28,61 @@ def get_iteration_points(iteration):
     for task in tasks:
         total += task.effort
     return total
-    
-def calculate_iterations():
-    velocity = settings.ITERATION_VELOCITY
-    calculated_tasks = {}
-    iteration = 0
-    iteration_points = 0
-    
-    # include finished tasks within current iteration
-    dates = get_iteration_dates(0)
-    planned_tasks = models.Task.objects.filter(Q(priority__isnull=False) |
-                                               Q(finished_date__range=dates))
 
-    for task in planned_tasks.order_by('finished_date', 'priority'):
-        if task.effort + iteration_points > velocity:
-            iteration += 1
-            iteration_points = 0
-        calculated_tasks[task] = iteration
-        iteration_points += task.effort
-    
-    cache.set(settings.ITERATION_CACHE_KEY, calculated_tasks)
-    return calculated_tasks
+def get_team_velocity(iteration, team):
+    i_start, i_end = get_iteration_dates(iteration)
+    filters = {
+        'start_date__lt': i_end,
+        'end_date__gt': i_start
+    }
+    adjustments = team.strength_adjustments.filter(**filters)
+    # break iteration into days, get daily reduction percentages
+    # TODO: there might be a cleaner way to do this :)
+    days = [i_start + timedelta(days=x) for x in range(0, (i_end-i_start).days)]
+    deduction = 0
+    for day in days:
+        for a in adjustments:
+            if day >= a.start_date and day <= a.end_date:
+                deduction += (team.velocity / len(days)) * a.percentage
+    return team.velocity - deduction
+
+
+def calculate_iterations():
+    """
+    This is the meat of the task system. Iterations are dynamic, meaning that
+    the iteration for a given task is calculated on-the-fly (with a 1hr cache).
+    This allows for more flexibility, fewer database hits, and less chance of
+    corruption of data when changing iteration settings such as velocity and
+    team strength.
+
+    Each team has it's own velocity, and each task is assigned to a team. All
+    projects follow the base iteration length (ITERATION_DAYS), which is
+    typically one week. The only reason a project should need longer iterations
+    is for the purpose of planning milestones, in which case you can just limit
+    the dates for which you are able to create milestone tasks.
+    """
+    calculated_tasks = {}
+
+    for team in models.Team.objects.all():
+        iteration = 0
+        iteration_points = 0
+        velocity = get_team_velocity(iteration)
+        dates = get_iteration_dates(iteration)
+        # include finished tasks within current iteration
+        planned_tasks = models.Task.objects.filter(Q(priority__isnull=False) |
+                                                   Q(finished_date__range=dates),
+                                                   effort__isnull=False)
+
+        for task in planned_tasks.order_by('finished_date', 'priority'):
+            if task.effort + iteration_points > velocity:
+                iteration += 1
+                iteration_points = 0
+                velocity = get_team_velocity(iteration)
+            calculated_tasks[task] = iteration
+            iteration_points += task.effort
+
+        cache.set(settings.ITERATION_CACHE_KEY, calculated_tasks)
+        return calculated_tasks
 
 def get_task_iteration(task):
     calculated_tasks = get_calculated_tasks()

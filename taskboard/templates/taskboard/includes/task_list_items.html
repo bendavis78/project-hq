@@ -1,11 +1,13 @@
 {% load ui_tags %}
+{% load taskboard_tags %}
 
   {% for task in task_list %}
   {% ifchanged task.iteration %}
   {% if task.iteration >= 0 %}
   <a name="i{{ task.iteration }}"></a>
   <div id="task_iteration_{{ task.iteration }}" class="iteration-separator scheduled">
-    {% if task.iteration == 0 %}Current {% endif %}Iteration: {{ task.iteration_date|date:"M j" }} - {{ task.iteration_end_date|date:"M j" }}
+    {{ task.iteration_date|date:"M j" }} - {{ task.iteration_end_date|date:"M j" }}
+    <span class="points">{% get_iteration_points task.iteration %} pts</span>
   </div>
   {% else %}
   <div id="task_iteration_unscheduled" class="iteration-separator">Unscheduled Tasks</div>

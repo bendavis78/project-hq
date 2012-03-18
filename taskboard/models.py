@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User, Group
@@ -25,6 +26,13 @@ STATUS_CHOICES = (
     ('FINISHED', 'Finished'),
 )
 
+TASK_TYPES = (
+    ('FEATURE', 'Feature'),
+    ('MILESTONE', 'Milestone'),
+    ('BUG', 'Bug'),
+    ('CHORE', 'Chore'),
+)
+
 class TaskFilterMixin(object):
     def current(self):
         return self.filter(iteration=0)
@@ -45,7 +53,7 @@ class TaskQuerySet(TaskFilterMixin, QuerySet):
                 tasks = utils.get_iterations()[iteration]
             except KeyError:
                 return self.none()
-            return qs.filter(pk__in=tasks)
+            return qs.filter(pk__in=[t.pk for t in tasks])
         if status == 'SCHEDULED':
             return qs.filter(priority__isnull=False, finished_date__isnull=False)
         if status == 'NOT_SCHEDULED':
@@ -85,6 +93,15 @@ class TaskUser(User):
         u.__dict__ = user.__dict__
         return u
 
+class Team(Group):
+    velocity = models.PositiveIntegerField(default=0)
+    velocity_strategy = models.PositiveIntegerField(default=4,
+            help_text='Number of past iterations used to calculate suggested velocity')
+    
+    def get_suggested_velocity(self):
+        #TODO
+        pass
+
 
 class Task(OrderableModel, HistoryModel, models.Model):
     """
@@ -93,17 +110,18 @@ class Task(OrderableModel, HistoryModel, models.Model):
     The task's iteration is automatically calculated based on the tasks effort 
     setting. If a task is blocked, something is keeping it from being completed.
     """
+    type = models.CharField(max_length=20, choices=TASK_TYPES, default='FEATURE')
     priority = models.IntegerField(null=True, editable=False)
     ticket = models.OneToOneField(Ticket,null=True,blank=True)
     project = models.ForeignKey(Project)
-    team = models.ForeignKey(Group)
+    team = models.ForeignKey(Team)
     owner = models.ForeignKey(TaskUser, null=True, blank=True, default=0)
     title = models.CharField(max_length=250)
     description = models.TextField(blank=True)
-    effort = models.IntegerField(choices=EFFORT_CHOICES)
+    effort = models.IntegerField(choices=EFFORT_CHOICES, null=True)
     due_date = models.DateField(null=True,blank=True)
-    started_date = models.DateField('Started date', null=True, blank=True)
-    finished_date = models.DateField('Finished date', null=True,blank=True)
+    started_date = models.DateTimeField(null=True, blank=True)
+    finished_date = models.DateTimeField(null=True, blank=True)
     blocked = models.BooleanField()
     tags = TagField()
 
@@ -161,14 +179,21 @@ class Task(OrderableModel, HistoryModel, models.Model):
             self.ticket.save()
         if self.finished_date is not None:
             self.priority = None
+        if self.type != 'FEATURE':
+            self.points = 0
         return super(Task, self).save()
+
+    def clean(self):
+        if self.effort is None and self.status != 'NOT_SCHEDULED':
+            raise ValidationError('Effort cannot be null on scheduled or finished tasks.')
 
     @models.permalink
     def get_absolute_url(self):
         return ('taskboard_details', (self.pk,))
 
 class TeamStrengthAdjustment(models.Model):
-    team = models.ForeignKey(Group)
+    team = models.ForeignKey(Team, related_name='strength_adjustments')
     start_date = models.DateField()
     end_date = models.DateField()
-    percentage = models.DecimalField(max_digits=2, decimal_places=2)
+    percentage = models.DecimalField(max_digits=2, decimal_places=2,
+            help_text='The percentage of reduction in this team\'s velocity')
