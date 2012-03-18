@@ -31,9 +31,9 @@ created from within a ticket.
 
 Agile Planning
 ==============
-The goal of this system seeks to be adapted to fit most agile methodologies, 
-wheather it be scrum, kanban, a mix of both, or something else.  The idea is 
-to allow teams to explore and find what method works for them.
+The goal of this system is to be flexible enough to be adapted to any agile 
+method, wheather it be scrum, kanban, a mix of both, or something else.  The 
+idea is to allow teams to explore and find what method works for them.
 
 Iterations
 ----------
@@ -106,6 +106,14 @@ deadline for a certain group of tasks to be completed. A milestone is usually
 placed after the last task required for that deadline. The system will 
 display warnings if a milestone is pushed beyond it's designated date.
 
+team
+----
+A team is a resource which is available to work on tasks_.  Teams should be 
+designated not by the projects they work on, but rather the type of work they
+do. For example, an organization might have a development team and a creative
+team.  These teams may have different velocities based on the nature of their
+work.
 
 
 .. _milestones: milestone_
+.. _tasks: task_
