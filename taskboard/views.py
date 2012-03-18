@@ -118,6 +118,11 @@ class TaskDetail(CommentViewMixin, detail.DetailView):
             obj.closed_reason = data['closed_reason']
         return event
 
+class TaskDelete(edit.DeleteView):
+    def __init__(self, *args, **kwargs):
+        kwargs['success_url'] = reverse('taskboard_index')
+        super(TaskDelete, self).__init__(*args, **kwargs)
+
 opts = {
     'model': models.Task,
     'context_object_name': 'task',
@@ -130,7 +135,7 @@ index = login_required(TaskList.as_view(**list_opts))
 create = login_required(TaskCreate.as_view(**opts))
 update = login_required(TaskUpdate.as_view(**opts))
 detail = login_required(TaskDetail.as_view(**opts))
-delete = login_required(edit.DeleteView.as_view(**opts))
+delete = login_required(TaskDelete.as_view(**opts))
 list_items = login_required(TaskList.as_view(
         template_name='taskboard/task_list_items.html',
         **list_opts))
