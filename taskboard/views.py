@@ -154,6 +154,7 @@ def move(request, pk, to):
             return http.HttpResponseForbidden('You cannot prioritize unplanned tasks')
         task.priority = target.priority
     task.save()
+    task.log_changes(request.user)
     return http.HttpResponse('Successfully moved task {} to {}'.format(pk, to))
 
 def action(request):
@@ -161,25 +162,30 @@ def action(request):
     #value = request.POST.get('action_value', None)
     ids = request.POST.getlist('ids')
     queryset = models.Task.objects.filter(pk__in=ids)
-    count = queryset.count()
+
+    # we're looping through each task because we want to log any changes that occur.
+    def update_tasks(queryset, **kwargs):
+        for task in queryset:
+            for attr, value in kwargs.iteritems():
+                setattr(task, value)
+            task.log_changes(request.user)
+            task.save()
 
     if action == 'unschedule':
-        queryset.update(priority=None)
-        msg = 'Successfully unscheduled {} tasks'.format(count)
-        # we need to reset cache here since the save signal won't be triggered
-        utils.clear_iteration_cache() 
-        messages.add_message(request, messages.INFO, msg)
+        update_tasks(queryset, priority=None)
+        msg = 'Successfully unscheduled {} tasks'.format(queryset.count())
     if action == 'start':
-        queryset.filter(finished_date=None, started_date=None).update(started_date=datetime.today())
-        msg = 'Successfully started {} tasks'.format(count)
-        messages.add_message(request, messages.INFO, msg)
+        queryset = queryset.filter(finished_date=None, started_date=None)
+        update_tasks(queryset, started_date=datetime.today())
+        msg = 'Successfully started {} tasks'.format(queryset.count())
     if action == 'finish':
-        queryset.filter(finished_date=None).update(finished_date=datetime.today())
-        msg = 'Successfully finished {} tasks'.format(count)
-        messages.add_message(request, messages.INFO, msg)
+        queryset = queryset.filter(finished_date=None)
+        update_tasks(queryset, finished_date=datetime.today())
+        msg = 'Successfully finished {} tasks'.format(queryset.count)
     else:
         raise ValueError("Invalid Action: {}".format(action))
 
+    messages.add_message(request, messages.INFO, msg)
     return http.HttpResponseRedirect(reverse('taskboard_index'))
 
 def start(request, pk):
@@ -189,6 +195,7 @@ def start(request, pk):
     if task.finished_date is not None:
         return HttpResponseConflict('The finished date has already been set on this task. You may unset the finished date manually.')
     task.started_date = datetime.today()
+    task.log_changes(request.user)
     task.save()
     return http.HttpResponse('Successfully set start date to {}'.format(task.started_date))
 
@@ -197,6 +204,7 @@ def finish(request, pk):
     if task.finished_date is not None:
         return HttpResponseConflict('The finished date has already been set on this task. You may unset the finished date manually.')
     task.finished_date = datetime.today()
+    task.log_changes(request.user)
     task.save()
     return http.HttpResponse('Successfully set finish date to {}'.format(task.finished_date))
 
@@ -221,6 +229,7 @@ def set_effort(request, pk):
         if effort not in [e[0] for e in models.EFFORT_CHOICES]:
             return http.HttpResponseBadRequest('Invalid effort value provided.')
     task.effort = effort
+    task.log_changes(request.user)
     task.save()
     return http.HttpResponse('Successfully set effort to {}'.format(effort))
 

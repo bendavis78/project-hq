@@ -91,12 +91,20 @@ def action(request):
     count = queryset.count()
     msg = None
 
+    # we're looping through each ticket because we want to log any changes that occur.
+    def update_tickets(queryset, **kwargs):
+        for ticket in queryset:
+            for attr, value in kwargs.iteritems():
+                setattr(ticket, attr, value)
+            ticket.log_changes(request.user)
+            ticket.save()
+
     if action == 'set-status':
         if 'CLOSED-' in value:
             closed_reason = value.split('-')[1]
-            queryset.update(status='CLOSED', closed_reason=closed_reason)
+            update_tickets(queryset, status='CLOSED', closed_reason=closed_reason)
         else:
-            queryset.update(status=value)
+            update_tickets(queryset, status=value)
         msg = "Successfully set status on {} tickets to {}".format(count, value)
         messages.add_message(request, messages.INFO, msg)
 

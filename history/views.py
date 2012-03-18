@@ -21,7 +21,7 @@ class CommentViewMixin(object):
                 return super(CommentViewMixin, self).get(*args, **kwargs)
             obj = self.get_object()
             event = self.save_comment_form(self.comment_form, obj)
-            obj.log_changes(event)
+            obj.log_changes(event.user, event)
             obj.save()
             return http.HttpResponseRedirect('.')
 
@@ -45,8 +45,5 @@ class CommentViewMixin(object):
 class HistoryUpdateMixin(object):
     def form_valid(self, form):
         obj = form.save(commit=False)
-        if obj.has_changes():
-            event = models.Event(object=obj, user_id=self.request.user.id)
-            obj.log_changes(event)
-            event.save()
+        obj.log_changes(self.request.user)
         return super(HistoryUpdateMixin, self).form_valid(form)

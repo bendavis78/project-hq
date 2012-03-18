@@ -15,6 +15,14 @@ class HistoryUser(User):
             return self.first_name
         return self.username
 
+    @classmethod
+    def from_auth_user(cls, user):
+        u = cls()
+        if hasattr(user, '_wrapped'):
+            user = user._wrapped
+        u.__dict__ = user.__dict__
+        return u
+
 class Event(models.Model):
     object = generic.GenericForeignKey('content_type', 'object_id')
     content_type = models.ForeignKey(ContentType)
@@ -53,11 +61,16 @@ class HistoryModel(models.Model):
         changes = self.get_changes()
         return changes is not None and len(changes) > 0
     
-    def log_changes(self, event):
+    def log_changes(self, user, event=None):
         """
         Logs any unsaved object changes in the history log. Must be called before
         the .save() method.
         """
+        if not event and not user:
+            raise ValueError('You must provide either a user or an event object')
+        if not event:
+            event = Event(object=self)
+        event.user = HistoryUser.from_auth_user(user)
         if not self.pk:
             return
         changes = self.get_changes()
@@ -89,6 +102,10 @@ class HistoryModel(models.Model):
         new_value = getattr(self, field.name, None)
         if len(str(new_value)) > 50:
             return 'changed {}'.format(field.verbose_name)
+        if old_value is None:
+            old_value = '(None)'
+        if old_value == '':
+            old_value = '(Empty)'
         return 'changed {} from *{}* to *{}*'.format(field.verbose_name, old_value, new_value)
     
     @property
