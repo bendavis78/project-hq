@@ -635,7 +635,7 @@ dl + * {
 #tickets_list .col.summary p.submitted_by {
   font-style: italic;
 }
-#tickets_list .icons span.warning {
+.icons span.warning {
   background: url('../img/icn_warning.png') no-repeat;
 }
 

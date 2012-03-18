@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import QuerySet
@@ -186,6 +187,16 @@ class Task(OrderableModel, HistoryModel, models.Model):
     def clean(self):
         if self.effort is None and self.status != 'NOT_SCHEDULED':
             raise ValidationError('Effort cannot be null on scheduled or finished tasks.')
+
+    @property
+    def warnings(self):
+        warnings = {}
+        if self.status != 'FINISHED' and self.due_date and self.due_date < datetime.today().date():
+            warnings['due_date'] = 'Task deadline was on {}'.format(self.due_date)
+        if self.status in ('BACKLOG', 'BLOCKED'):
+            if self.due_date and self.due_date < self.iteration_date:
+                warnings['due_date'] = 'Task deadline is {}'.format(self.due_date)
+        return warnings
 
     @models.permalink
     def get_absolute_url(self):
