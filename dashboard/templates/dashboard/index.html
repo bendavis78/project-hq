@@ -1,5 +1,100 @@
 {% extends "dashboard/base.html" %}
+{% load ui_tags %}
 {% block dashboard_content %}
-  <p>Nothin' here yet.</p>
-  <p>Try the <a href="{% url tickets_index %}">tickets</a> module</p>
+<div class="module panel biglist">
+  <header>
+    <h3>My Tasks: <a href="{% url taskboard_index %}">{{ iteration_dates.0|date:"M j" }} - {{ iteration_dates.1|date:"M j" }}</a></h3>
+  </header>
+  {% for task in user_tasks %}
+  <div id="task_{{ task.id }}" class="row {% cycle "odd" "even" %}{% if task.iteration < 0 %} unscheduled{% endif %}">
+    <div class="col status">
+      <div class="status-label">
+        <span class="{{ task.status|title|cssclass }}">{{ task.get_status_description }}</span>
+      </div>
+      <div class="tags">
+      </div>
+    </div>
+    <div class="col summary">
+      <h4 class="title">
+        <a href="{{ task.get_absolute_url }}">#{{ task.id }} {{ task.title }}</a>
+      </h4>
+      <p class="project">{{ task.project }}</p>
+    </div>
+    <div class="col properties">
+      <dl>
+        <dt class="effort">Effort:</dt>
+        <dd>{{ task.effort }}</dd>
+        {% if task.due_date %}
+        <dt class="due{% if task.is_past_due %} past_due{% endif %}">Due:</dt>
+        <dd>{{ task.due_date|date:"M j" }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="module panel summary">
+  <header>
+    <h3>Summary</h3>
+  </header>
+  <ul>
+    <li>Remaining tasks for {{ iteration_dates.0|date:"M j" }} - {{ iteration_dates.1|date:"M j" }}: <a href="{% url taskboard_index %}">{{ remaining_tasks.count }}</a></li>
+    <li>Unscheduled tasks: <a href="{% url taskboard_index %}#task_iteration_unscheduled">{{ unscheduled_tasks.count }}</a></li>
+    <li>New Tickets: <a href="{% url tickets_index %}">{{ new_tickets.count }}</a></li>
+  </ul>
+  <!--
+  <dl>
+    <dt>Remaining tasks for {{ iteration_dates.0|date:"M j" }} - {{ iteration_dates.1|date:"M j" }}:</dt>
+    <dd>{{ remaining_tasks.count }}</dd>
+    <dt>Unscheduled tasks:</dt>
+    <dd>{{ unscheduled_tasks.count }}</dd>
+    <dt>New Tickets:</dt>
+    <dd>{{ new_tickets.count }}</dd>
+  </dl>
+  -->
+</div>
+{% if user_tickets.count > 0 %}
+<div class="module panel biglist">
+  <header>
+    <h3>My Tickets</h3>
+  </header>
+    {% for ticket in user_tickets %}
+    <div id="ticket_{{ ticket.id }}" class="row {% cycle "odd" "even" %} status-{{ ticket.status|slugify }}{% if ticket.past_due %} past-due{% endif %}">
+      <div class="col status">
+        <div class="status-label">
+          <span class="{{ ticket.status|cssclass }}">{{ ticket.get_status_description }}</span>
+        </div>
+        {% if ticket.task %}
+        <div class="status-label">
+          <a href="{% url taskboard_index %}?#{% if ticket.task.iteration >= 0 %}i{{ ticket.task.iteration }}{% else %}u{% endif %}">
+            <span class="{{ ticket.task.status|cssclass }}{% if ticket.task %} task {{ ticket.task.status|cssclass }}{% endif %}">{{ ticket.task.get_status_description }}</span>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+      <div class="col summary">
+        <h4 class="title">
+          <a href="{{ ticket.get_absolute_url }}">
+            <span class="id">#{{ ticket.id }}</span> {{ ticket.title }}
+          </a>
+        </h4>
+        <p class="project">{{ ticket.project }}</p>
+        <p class="last-activity{% if ticket.warnings.last_activity %} warning{% endif %}">
+          {% with ticket.get_last_activity as activity %}
+          Last activity: <a href="{{ ticket.get_absolute_url }}#e{{ activity.id }}"><em>{{ activity.user }}</em> on <em>{{ activity.date|date }}</em></a>
+          {% endwith %}
+        </p>
+      </div>
+      <div class="col properties">
+        <dl>
+          {% if ticket.due_date %}
+          <dt class="due{% if ticket.warnings.due_date %} warning{% endif %}">Due:</dt>
+          <dd class="due{% if ticket.warnings.due_date %} warning{% endif %}">{{ ticket.due_date|date:"M j" }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

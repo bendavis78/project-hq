@@ -7,10 +7,16 @@ body{
 #main {
   background: #fff;
 }
-
+#main:before, #main:after {
+  display: table;
+  content: "";
+}
+#main:after {
+  clear: both;
+}
 .content-wrapper{
-	margin:auto;
-	width:960px;
+	margin: auto;
+	width: 960px;
 }
 
 #header-container{
@@ -466,6 +472,11 @@ dl + * {
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   color: white;
 }
+
+#taskboard_list .iteration-separator .points {
+  float: right;
+}
+
 #taskboard_list .row.unscheduled {
   background-color: #E6E6E6;
 }
@@ -622,4 +633,52 @@ dl + * {
 .biglist .status-label span.backlog {
 }
 .biglist .status-label span.not-scheduled {
+}
+
+.panel {
+  width: 455px;
+  float: left;
+  margin-right: 20px;
+}
+.panel.biglist .summary {
+  width: 215px;
+}
+.panel.biglist .row .col.properties dt {
+  width: 50px;
+}
+.panel.biglist .row {
+  padding: 8px;
+}
+.panel.summary ul {
+  padding: 0;
+  margin: 10px;
+}
+.panel.summary ul li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.panel.summary ul li a {
+  font-weight: bold;
+  padding-left: 1ex;
+}
+.panel.summary dl {
+  padding: 10px;
+  -webkit-margin-after: 0;
+}
+.panel.summary dl:before, 
+.panel.summary dl:after {
+  content: "";
+  display: table;
+}
+.panel.summary dl:after {
+  clear: both;
+  margin: 0;
+}
+.panel.summary dl dd,
+.panel.summary dl dt {
+  margin: 2px 0;
+}
+.panel.summary dl dt {
+  width: 420px;
 }
