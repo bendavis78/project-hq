@@ -4,7 +4,6 @@ from django import http
 from django.core.urlresolvers import reverse
 from django.views.generic import edit, detail, list
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.db.models import Q, Max
 from django.shortcuts import get_object_or_404
@@ -94,8 +93,8 @@ class TaskCreate(TaskFormMixin, ProjectItemCreateMixin, edit.CreateView):
             initial['due_date'] = self.ticket.due_date
             initial['owner'] = self.ticket.owner
 
-        if Group.objects.count() > 0:
-            initial['team'] = Group.objects.all()[0]
+        if models.Team.objects.count() > 0:
+            initial['team'] = models.Team.objects.all()[0]
 
         return initial
 
