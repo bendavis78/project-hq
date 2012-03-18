@@ -3,7 +3,14 @@ from django.dispatch import receiver
 from taskboard.utils import clear_iteration_cache
 from . import models
 
-@receiver(post_save, sender=models.Task)
+iteration_changing_models = (
+    models.Task,
+    models.Team,
+    models.TeamStrengthAdjustment,
+)
+
+@receiver(post_save)
 def update_task_iterations(sender, **kwargs):
-    clear_iteration_cache()
-    models.Task.orderable.clean_ordering()
+    if sender in iteration_changing_models:
+        clear_iteration_cache()
+        models.Task.orderable.clean_ordering()
