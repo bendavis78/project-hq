@@ -30,16 +30,20 @@
     <dt>Ticket:</dt><dd><a href="{{ task.ticket.get_absolute_url }}" target="_blank">{{ task.ticket }}</a></dd>
     {% endif %}
     <dt>Project:</dt><dd>{{ task.project }}</dd>
+    <dt>Type:</dt><dd>{{ task.get_type_display }}</dd>
     <dt>Team:</dt><dd>{{ task.team }}</dd>
     <dt>Owner:</dt><dd>{{ task.owner|default:"(unassigned)" }}</dd>
     {% if task.due_date %}
     <dt>Due on:</dt><dd>{{ task.due_date }}</dd>
     {% endif %}
+    {% if task.type == "FEATURE" %}
     <dt>Effort:</dt><dd>{{ task.effort }}</dd>
-    <dt>Sprint:</dt><dd>{{ task.sprint_date|date }}</dd>
-    <dt>Status:</dt><dd>{{ task.get_status_description }}</dd>
-    {% if task.completed %}
-    <dt>Completed Date:</dt><dd>{{ task.completed|date }}</dd>
+    {% endif %}
+    {% if task.type != "MILESTONE" %}
+      <dt>Status:</dt><dd>{{ task.get_status_description }}</dd>
+      {% if task.completed %}
+      <dt>Completed Date:</dt><dd>{{ task.completed|date }}</dd>
+      {% endif %}
     {% endif %}
     {% if task.tags %}
     <dt>Tags:</dt><dd>{{ task.tags }}</dd>
