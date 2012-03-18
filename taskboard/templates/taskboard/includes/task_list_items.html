@@ -7,7 +7,9 @@
   <a name="i{{ task.iteration }}"></a>
   <div id="task_iteration_{{ task.iteration }}" class="iteration-separator scheduled">
     {{ task.iteration_date|date:"M j" }} - {{ task.iteration_end_date|date:"M j" }}
-    <span class="points">{% get_iteration_points task.iteration %} pts</span>
+    <a href="#" class="points">{% get_iteration_points task.iteration %} pts
+      {% iteration_point_breakdown task.iteration %}
+    </a>
   </div>
   {% else %}
   <div id="task_iteration_unscheduled" class="iteration-separator">Unscheduled Tasks</div>

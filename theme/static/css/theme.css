@@ -414,6 +414,7 @@ dl + * {
 }
 
 #taskboard_list .iteration-separator {
+  position: relative;
   padding: 10px;
   text-align: center;
   font-weight: bold;
@@ -474,6 +475,47 @@ dl + * {
 }
 
 #taskboard_list .iteration-separator .points {
+  float: right;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+}
+#taskboard_list .iteration-separator a.points:hover .breakdown {
+  display: block;
+}
+#taskboard_list .iteration-separator .breakdown {
+  display: none;
+  top: 26px;
+  right: -10px;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 150px;
+  text-shadow: none;
+  font-weight: normal;
+  color: #4D4D4D;
+  background-color: #F7F7F7;
+  border-radius: 0px 0px 10px 10px; 
+  -moz-border-radius: 0px 0px 10px 10px; 
+  -webkit-border-radius: 0px 0px 10px 10px; 
+  border: 1px solid #D4D4D4;
+  -webkit-box-shadow: 0px 5px 5px -2px rgba(0, 0, 0, .50);
+     -moz-box-shadow: 0px 5px 5px -2px rgba(0, 0, 0, .50);
+          box-shadow: 0px 5px 5px -2px rgba(0, 0, 0, .50);
+}
+#taskboard_list .iteration-separator .breakdown {
+  padding: 5px 10px;
+}
+#taskboard_list .iteration-separator .breakdown dt,
+#taskboard_list .iteration-separator .breakdown dd {
+  margin: 0;
+  padding: 0;
+}
+#taskboard_list .iteration-separator .breakdown dt {
+  text-align: left;
+}
+#taskboard_list .iteration-separator .breakdown dd {
   float: right;
 }
 

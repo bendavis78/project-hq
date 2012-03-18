@@ -1,0 +1,5 @@
+      <dl class="breakdown">
+        {% for info in breakdown %}
+        <dt>{{ info.team.name }}: </dt><dd>{{ info.points }} / {{ info.velocity }}</dd>
+        {% endfor %}
+      </dl>

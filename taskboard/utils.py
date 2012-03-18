@@ -24,10 +24,19 @@ def get_iterations():
 
 def get_iteration_points(iteration):
     tasks = get_iterations()[iteration]
-    total = 0
-    for task in tasks:
-        total += task.effort
-    return total
+    return sum([t.effort for t in tasks])
+
+def get_iteration_point_breakdown(iteration):
+    breakdown = []
+    tasks = get_iterations()[iteration]
+    for team in models.Team.objects.all():
+        team_points = sum([t.effort for t in tasks if t.team == team])
+        breakdown.append({
+            'team': team,
+            'velocity': get_team_velocity(team, iteration),
+            'points': team_points,
+        })
+    return breakdown
 
 def get_team_velocity(team, iteration):
     i_start, i_end = get_iteration_dates(iteration)
