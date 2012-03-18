@@ -11,4 +11,5 @@ urlpatterns = patterns('taskboard.views',
     url(r'^(?P<pk>\d+)/start/$', 'start', name='taskboard_task_start'),
     url(r'^(?P<pk>\d+)/finish/$', 'finish', name='taskboard_task_finish'),
     url(r'^(?P<pk>\d+)/set-effort/$', 'set_effort', name='taskboard_task_set_effort'),
+    url(r'^set-team-strength/$', 'set_team_strength', name='taskboard_team_strength'),
 )

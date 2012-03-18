@@ -1,6 +1,6 @@
 from django.core.cache import cache
 from django.db.models import Q
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 from taskboard import models
 from taskboard import settings
 import math
@@ -29,7 +29,7 @@ def get_iteration_points(iteration):
         total += task.effort
     return total
 
-def get_team_velocity(iteration, team):
+def get_team_velocity(team, iteration):
     i_start, i_end = get_iteration_dates(iteration)
     filters = {
         'start_date__lt': i_end,
@@ -37,14 +37,14 @@ def get_team_velocity(iteration, team):
     }
     adjustments = team.strength_adjustments.filter(**filters)
     # break iteration into days, get daily reduction percentages
-    # TODO: there might be a cleaner way to do this :)
-    days = [i_start + timedelta(days=x) for x in range(0, (i_end-i_start).days)]
     deduction = 0
-    for day in days:
+    num_days = (i_end - i_start).days + 1
+    for i in range(0, num_days):
+        day = i_start + timedelta(days=i)
         for a in adjustments:
             if day >= a.start_date and day <= a.end_date:
-                deduction += (team.velocity / len(days)) * a.percentage
-    return team.velocity - deduction
+                deduction += (team.velocity / float(num_days)) * float(a.percentage)
+    return int(round(team.velocity - deduction))
 
 
 def calculate_iterations():
@@ -66,7 +66,7 @@ def calculate_iterations():
     for team in models.Team.objects.all():
         iteration = 0
         iteration_points = 0
-        velocity = get_team_velocity(iteration)
+        velocity = get_team_velocity(team, iteration)
         dates = get_iteration_dates(iteration)
         # include finished tasks within current iteration
         planned_tasks = models.Task.objects.filter(Q(priority__isnull=False) |
@@ -77,7 +77,7 @@ def calculate_iterations():
             if task.effort + iteration_points > velocity:
                 iteration += 1
                 iteration_points = 0
-                velocity = get_team_velocity(iteration)
+                velocity = get_team_velocity(team, iteration)
             calculated_tasks[task] = iteration
             iteration_points += task.effort
 
@@ -92,12 +92,12 @@ def get_iteration_date(num=0):
     """
     Calculates the start date of the current iteration
     """
-    today = datetime.today()
+    today = date.today() 
     # We start with the first day of the year as a reference point
-    ref_date = datetime(today.year, 1, 1)
+    ref_date = date(today.year, 1, 1)
     ref_date += timedelta((settings.ITERATION_START_WEEKDAY-ref_date.weekday()) % 7)
     ref_date += timedelta(days=settings.ITERATION_OFFSET)
-    days = (datetime.today() - ref_date).days
+    days = (date.today() - ref_date).days
     num_iterations = math.floor(days / settings.ITERATION_DAYS) + num
     return ref_date + timedelta(days=(settings.ITERATION_DAYS*num_iterations))
 

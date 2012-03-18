@@ -8,7 +8,7 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         for group in orm['auth.Group'].objects.all():
-            orm['taskboard.Team'](group_ptr_id=group.pk, velocity=0, velocity_strategy=4).save()
+            orm['taskboard.Team'](group_ptr_id=group.pk, velocity=0, velocity_strategy=4, name=group.name).save()
 
 
     def backwards(self, orm):
