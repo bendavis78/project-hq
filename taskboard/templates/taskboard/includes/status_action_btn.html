@@ -1,0 +1,1 @@
+{% if action %}<a href="{% url taskboard_set_status pk=task.pk %}" rel="{{ action }}" class="btn status-action {{ action }}">{{ label }}</a>{% endif %}

@@ -17,38 +17,6 @@
   {% endif %}
   {% endifchanged %}
   <div id="task_{{ task.id }}" class="row {% cycle "odd" "even" %}{% if task.iteration < 0 %} unscheduled{% endif %}">
-    <div class="col selector">
-      <input type="checkbox" name="ids" value="{{ task.pk }}" />
-      <div class="icons">
-        {% if ticket.has_activity_age_warning %}
-        <span class="activity-age-warning" title="Last activity was {{ ticket.get_last_activity_date|date }}">!</span>
-        {% endif %}
-      </div>
-    </div>
-    <div class="col status">
-      <div class="status-label">
-        <span class="{{ task.status|title|cssclass }}">{{ task.get_status_description }}</span>
-      </div>
-      <div class="tags">
-      </div>
-    </div>
-    <div class="col summary">
-      <h4 class="title">
-        <a href="{{ task.get_absolute_url }}">#{{ task.id }} {{ task.title }}</a>
-      </h4>
-      <p class="project">{{ task.project }}</p>
-    </div>
-    <div class="col properties">
-      <dl>
-        <dt class="effort">Effort:</dt>
-        <dd>{{ task.effort }}</dd>
-        <dt class="owner">Owner:</dt>
-        <dd>{{ task.owner }}</dd>
-        {% if task.due_date %}
-        <dt class="due{% if task.is_past_due %} past_due{% endif %}">Due:</dt>
-        <dd>{{ task.due_date|date }}</dd>
-        {% endif %}
-      </dl>
-    </div>
+    {% include "taskboard/includes/task_list_item.html" %}
   </div>
   {% endfor %}

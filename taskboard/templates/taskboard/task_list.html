@@ -5,10 +5,28 @@
 <script src="{{ STATIC_URL }}ui/js/filters.js"></script>
 <script src="{{ STATIC_URL }}ui/js/sortable.js"></script>
 <script src="{{ STATIC_URL }}ui/js/actions.js"></script>
+<script src="{{ STATIC_URL }}taskboard/js/actions.js"></script>
 <script src="{{ STATIC_URL }}taskboard/js/sortable.js"></script>
 <script>
 window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
+$(document).ready(function(){
+  var taskboardRoot = "{% url taskboard_index %}"
+  $(document).on('statusChanged', 'a.status-action', function(e, data) {
+    var $task = $('#task_'+data.task_id);
+    $task.setupOverlay();
+    console.log($('#task_overlay'));
+    $('#task_overlay').fadeIn(function(){
+      console.log('test');
+      $task.load(taskboardRoot + data.task_id+'/list-item/', function(){
+        console.log('test2');
+        $('#task_overlay').fadeOut(function(){$(this).remove()});
+      });
+    });
+  });
+  $(document).on('taskAjaxError', function(e,msg){alert(msg);});
+});
 </script>
+{{ block.super }}
 {% endblock %}
 
 {% block taskboard_content %}
@@ -69,7 +87,6 @@ window.history.replaceState(null, 'Tasks', '?'+'{{ params.urlencode|safe }}')
     {% include "taskboard/includes/task_list_items.html" %}
   </div>
 </form>
-<div id="taskboard_list_overlay">
-</div>
+<div id="taskboard_list_overlay"></div>
 </div>
 {% endblock %}

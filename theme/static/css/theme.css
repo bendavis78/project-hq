@@ -234,6 +234,7 @@ h2 .btn {
 }
 .page-tools ul.tools li {
   margin-left: 10px;
+  white-space: nowrap;
 }
 .page-tools ul.filters {
   list-style: none;
@@ -523,7 +524,8 @@ dl + * {
   background-color: #E6E6E6;
 }
 
-#taskboard_list_overlay {
+#taskboard_list_overlay,
+#task_overlay {
   display: none;
   position: absolute;
   background-color: #FFF;
@@ -534,6 +536,18 @@ dl + * {
   margin: 0;
   padding: 0;
 }
+
+.btn.status-action {
+  background: #E1E1E1;
+  background: -moz-linear-gradient(top, #E1E1E1 0%, #D2D2D2 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E1E1E1), color-stop(100%,#D2D2D2));
+  background: -webkit-linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  background: -o-linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  background: -ms-linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e1e1e1', endColorstr='#d2d2d2',GradientType=0 );
+  background: linear-gradient(top, #E1E1E1 0%,#D2D2D2 100%);
+}
+
 .warning {
   color: #B94A48;
 }
@@ -585,21 +599,6 @@ dl + * {
 .biglist .row .status-label {
   padding-bottom: 6px;
 }
-.biglist .row .status-label a:hover,
-.biglist .row .status-label span:hover {
-  text-decoration: none;
-}
-.biglist .row .status-label span {
-  padding: 2px 4px 3px;
-  font-size: 11.049999999999999px;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  background-color: #999;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-}
 .biglist .row .col.selector {
   width: 16px;
   margin-right: 16px;
@@ -647,34 +646,57 @@ dl + * {
  * Orange: #F89406;
  * Red: #B94A48;
  */
-.biglist .status-label span.new {
+.status-label a:hover,
+.status-label span:hover {
+  text-decoration: none;
+}
+.status-label span {
+  padding: 2px 4px 3px;
+  font-size: 11.049999999999999px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #999;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.status-label span.new {
   background-color: #B94A48;
 }
-.biglist .status-label span.feedback {
+.status-label span.feedback {
   background-color: #F89406;
 }
-.biglist .status-label span.assigned,
-.biglist .status-label span.scheduled {
+.status-label span.assigned,
+.status-label span.scheduled {
   background-color: #2D6987;
 }
-.biglist .status-label span.acknowleged {
+.status-label span.acknowleged {
   background-color: #468847;
 }
-.biglist .status-label span.finished {
+.status-label span.finished {
   background-color: #468847;
 }
-.biglist .status-label span.blocked {
+.status-label span.blocked {
   background-color: #F89406;
 }
-.biglist .status-label span.not-started {
+.status-label span.not-started {
   background-color: #B94A48;
 }
-.biglist .status-label span.started {
+.status-label span.started {
   background-color: #2D6987;
 }
-.biglist .status-label span.backlog {
+.status-label span.backlog {
 }
-.biglist .status-label span.not-scheduled {
+.status-label span.not-scheduled {
+}
+
+.biglist .btn.status-action {
+  display: block;
+  float: left;
+  margin: .3em 0;
+  padding: 4px;
+  font-size: 12px;
 }
 
 .panel {

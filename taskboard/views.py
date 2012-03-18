@@ -3,6 +3,7 @@ from datetime import datetime
 from django import http
 from django.core.urlresolvers import reverse
 from django.views.generic import edit, detail, list
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Max
@@ -14,6 +15,12 @@ from history.views import CommentViewMixin, HistoryUpdateMixin
 
 class HttpResponseConflict(http.HttpResponse):
     status_code = 409
+
+class HttpResponseJSON(http.HttpResponse):
+    def __init__(self, content, mimetype='application/json', status=None):
+        import json
+        content = json.dumps(content)
+        return super(HttpResponseJSON, self).__init__(content, mimetype, status)
 
 class TaskList(ProjectFilterMixin, list.ListView):
     def get_queryset(self, finished=False):
@@ -138,6 +145,9 @@ delete = login_required(TaskDelete.as_view(**opts))
 list_items = login_required(TaskList.as_view(
         template_name='taskboard/task_list_items.html',
         **list_opts))
+list_item = login_required(TaskDetail.as_view(
+        template_name='taskboard/includes/task_list_item.html',
+        **opts))
 
 #--| API Functions |-------------------------------------------------------------
 
@@ -157,6 +167,7 @@ def move(request, pk, to):
     task.log_changes(request.user)
     return http.HttpResponse('Successfully moved task {} to {}'.format(pk, to))
 
+@csrf_exempt
 def action(request):
     action = request.POST.get('action')
     #value = request.POST.get('action_value', None)
@@ -188,26 +199,48 @@ def action(request):
     messages.add_message(request, messages.INFO, msg)
     return http.HttpResponseRedirect(reverse('taskboard_index'))
 
-def start(request, pk):
-    task = get_object_or_404(models.Task, pk=pk)
-    if task.started_date is not None:
-        return HttpResponseConflict('The started date has already been set on this task. You may unset the started date manually.')
-    if task.finished_date is not None:
-        return HttpResponseConflict('The finished date has already been set on this task. You may unset the finished date manually.')
-    task.started_date = datetime.today()
-    task.log_changes(request.user)
-    task.save()
-    return http.HttpResponse('Successfully set start date to {}'.format(task.started_date))
+@csrf_exempt
+def set_status(request, pk):
+    status = request.POST.get('status')
+    if not status:
+        return http.HttpResponseBadRequest('Status not given')
 
-def finish(request, pk):
-    task = get_object_or_404(models.Task, pk=pk)
-    if task.finished_date is not None:
-        return HttpResponseConflict('The finished date has already been set on this task. You may unset the finished date manually.')
-    task.finished_date = datetime.today()
-    task.log_changes(request.user)
-    task.save()
-    return http.HttpResponse('Successfully set finish date to {}'.format(task.finished_date))
+    if status == 'start':
+        task = get_object_or_404(models.Task, pk=pk)
+        if task.started_date is not None:
+            return HttpResponseConflict('The started date has already been set on this task. You may unset the started date manually.')
+        if task.finished_date is not None:
+            return HttpResponseConflict('The finished date has already been set on this task. You may unset the finished date manually.')
+        task.started_date = datetime.today()
+        task.log_changes(request.user)
+        task.save()
+        response = {
+            'task_id': task.id,
+            'status': task.status,
+            'status_description': task.get_status_description(),
+            'started_date': task.started_date.strftime('%Y-%m-%d'),
+            'next': 'finish',
+            'next_label': 'Finish'
+        }
 
+    if status == 'finish':
+        task = get_object_or_404(models.Task, pk=pk)
+        if task.finished_date is not None:
+            return HttpResponseConflict('The finished date has already been set on this task. You may unset the finished date manually.')
+        task.finished_date = datetime.today()
+        task.log_changes(request.user)
+        task.save()
+        response = {
+            'task_id': task.id,
+            'status': task.status,
+            'status_description': task.get_status_description(),
+            'finished_date': task.finished_date.strftime('%Y-%m-%d'),
+            'next': '',
+        }
+    
+    return HttpResponseJSON(response)
+
+@csrf_exempt
 def set_effort(request, pk):
     task = get_object_or_404(models.Task, pk=pk)
     if task.finished_date is not None:
@@ -233,6 +266,7 @@ def set_effort(request, pk):
     task.save()
     return http.HttpResponse('Successfully set effort to {}'.format(effort))
 
+@csrf_exempt
 def set_team_strength(request):
     team = request.POST.get('team')
     iteration = request.POST.get('iteration')

@@ -1,0 +1,36 @@
+{% load ui_tags %}
+{% load taskboard_tags %}
+    <div class="col selector">
+      <input type="checkbox" name="ids" value="{{ task.pk }}" />
+      <div class="icons">
+        {% if task.warnings %}
+        <span class="warning" title="{{ task.warnings.items.0.1 }}">!</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col status">
+      <div class="status-label">
+        <span class="{{ task.status|title|cssclass }}">{{ task.get_status_description }}</span>
+      </div>
+      <div class="tags">
+      </div>
+    </div>
+    <div class="col summary">
+      <h4 class="title">
+        <a href="{{ task.get_absolute_url }}">#{{ task.id }} {{ task.title }}</a>
+      </h4>
+      <p class="project">{{ task.project }}</p>
+      {% status_action_btn task %}
+    </div>
+    <div class="col properties">
+      <dl>
+        <dt class="effort">Effort:</dt>
+        <dd>{{ task.effort }}</dd>
+        <dt class="owner">Owner:</dt>
+        <dd>{{ task.owner }}</dd>
+        {% if task.due_date %}
+        <dt class="due{% if task.warnings.due_date %} warning{% endif %}">Due:</dt>
+        <dd class="due{% if task.warnings.due_date %} warning{% endif %}">{{ task.due_date|date }}</dd>
+        {% endif %}
+      </dl>
+    </div>

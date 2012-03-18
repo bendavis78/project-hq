@@ -1,23 +1,33 @@
 {% extends "taskboard/base.html" %}
 {% load markup %}
+{% load ui_tags %}
+{% load taskboard_tags %}
 
 {% block title %}{{ task.title }} | {{ block.super }}{% endblock %}
 
-{% block extrahead %}
+{% block taskboard_extrahead %}
+<script src="{{ STATIC_URL }}taskboard/js/actions.js"></script>
 <script>
 (function($){
+  $(document).on('taskAjaxError', function(e,msg){alert(msg);});
   $(document).ready(function(){
     $('div.field.change-status select').change(function(){
       $('div.field.closed-reason').toggle(this.value=='CLOSED');
     }).change();
+    $('a.status-action').on('statusChanged', function(e, data){
+      console.log('test');
+      location.reload(true);
+    });
   });
 })(jQuery);
 </script>
+{{ block.super }}
 {% endblock %}
 
 {% block taskboard_content %}
 <div class="page-tools">
   <ul class="tools">
+    <li class="status-action">{% status_action_btn task %}</li>
     <li><a class="btn grey" href="{% url taskboard_edit pk=task.pk %}">Edit Task</a></li>
   </ul>
 </div>
@@ -40,10 +50,11 @@
     <dt>Effort:</dt><dd>{{ task.effort }}</dd>
     {% endif %}
     {% if task.type != "MILESTONE" %}
-      <dt>Status:</dt><dd>{{ task.get_status_description }}</dd>
-      {% if task.completed %}
-      <dt>Completed Date:</dt><dd>{{ task.completed|date }}</dd>
-      {% endif %}
+      <dt>Status:</dt>
+      <dd>{{ task.get_status_description }}</dd>
+    {% endif %}
+    {% if task.completed %}
+    <dt>Completed Date:</dt><dd>{{ task.completed|date }}</dd>
     {% endif %}
     {% if task.tags %}
     <dt>Tags:</dt><dd>{{ task.tags }}</dd>
