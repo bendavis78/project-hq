@@ -26,6 +26,12 @@ class TaskList(ProjectFilterMixin, list.ListView):
     def get_queryset(self, finished=False):
         queryset = super(TaskList, self).get_queryset()
 
+        owner = self.params.get('owner')
+        if owner == 'none':
+            queryset = queryset.filter(owner=None)
+        elif owner:
+            queryset = queryset.filter(owner__username=owner)
+
         if self.params.get('q'):
             search_fields = ['title', 'description', 'tags']
             words = self.params['q'].split(' ')
