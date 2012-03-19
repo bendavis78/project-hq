@@ -115,15 +115,6 @@ class TaskUpdate(TaskFormMixin, HistoryUpdateMixin, edit.UpdateView):
 class TaskDetail(CommentViewMixin, detail.DetailView):
     comment_form_class = forms.CommentForm
     
-    def save_comment_form(self, comment_form, obj):
-        event = super(TaskDetail, self).save_comment_form(comment_form, obj)
-        data = comment_form.cleaned_data
-        if data['change_status']:
-            obj.status = data['change_status']
-        if data['closed_reason']:
-            obj.closed_reason = data['closed_reason']
-        return event
-
 class TaskDelete(edit.DeleteView):
     def __init__(self, *args, **kwargs):
         kwargs['success_url'] = reverse('taskboard_index')
