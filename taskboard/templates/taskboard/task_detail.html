@@ -61,7 +61,7 @@
     {% endif %}
   </dl>
   <div class="description">
-    {{ task.description|urlize|markdown }}
+    {{ task.description|safe|urlize|markdown }}
   </div>
 </div>
 <div class="module task history" id="history">
@@ -88,7 +88,7 @@
     {% endif %}
     {% if event.comment %}
     <div class="comment">
-      {{ event.comment.message|urlize|markdown }}
+      {{ event.comment.message|safe|urlize|markdown }}
     </div>
     {% endif %}
   </div>

@@ -44,7 +44,7 @@
     {% endif %}
   </dl>
   <div class="description">
-    {{ ticket.description|urlize|markdown }}
+    {{ ticket.description|safe|urlize|markdown }}
   </div>
 </div>
 <div class="module ticket history" id="history">
@@ -71,7 +71,7 @@
     {% endif %}
     {% if event.comment %}
     <div class="comment">
-      {{ event.comment.message|urlize|markdown }}
+      {{ event.comment.message|safe|urlize|markdown }}
     </div>
     {% endif %}
   </div>
