@@ -275,11 +275,9 @@ def set_team_strength(request):
     if iteration < 0 :
         return http.HttpResponseBadRequest('Invalid iteration provided')
     try:
-        percentage = float(percentage)
+        percentage = int(percentage)
     except ValueError:
-        percentage = -1
-    if not percentage >= 0 or not percentage <= 1:
-        return http.HttpResponseBadRequest('Invalid percentage supplied. Must be between or including 0 and 1')
+        return http.HttpResponseBadRequest('Invalid percentage supplied. Must be a positive integer between or including 0 and 100')
     
     iteration = int(iteration)
     i_start, i_end = utils.get_iteration_dates(iteration)
@@ -289,4 +287,4 @@ def set_team_strength(request):
     except models.TeamStrengthAdjustment.DoesNotExist:
         adjustment = models.TeamStrengthAdjustment(team=team, start_date=i_start, end_date=i_end, percentage=percentage)
     adjustment.save()
-    return http.HttpResponse('Team strength successfully set to {} for the dates {} through {}'.format(percentage, i_start, i_end))
+    return http.HttpResponse('Team strength successfully set to {}% for the dates {} through {}'.format(percentage, i_start, i_end))

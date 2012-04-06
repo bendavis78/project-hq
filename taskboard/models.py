@@ -206,7 +206,7 @@ class TeamStrengthAdjustment(models.Model):
     team = models.ForeignKey(Team, related_name='strength_adjustments')
     start_date = models.DateField()
     end_date = models.DateField()
-    percentage = models.DecimalField(max_digits=2, decimal_places=2,
+    percentage = models.PositiveIntegerField(
             help_text='The percentage of reduction in this team\'s velocity')
 
     def __unicode__(self):

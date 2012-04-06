@@ -52,7 +52,7 @@ def get_team_velocity(team, iteration):
         day = i_start + timedelta(days=i)
         for a in adjustments:
             if day >= a.start_date and day <= a.end_date:
-                deduction += (team.velocity / float(num_days)) * float(a.percentage)
+                deduction += (team.velocity / float(num_days)) * (float(a.percentage)/100)
     return int(round(team.velocity - deduction))
 
 
