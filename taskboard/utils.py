@@ -48,11 +48,16 @@ def get_team_velocity(team, iteration):
     # break iteration into days, get daily reduction percentages
     deduction = 0
     num_days = (i_end - i_start).days + 1
+    daily_pts = (team.velocity / float(num_days))
+    # For each day in the iteration...
     for i in range(0, num_days):
         day = i_start + timedelta(days=i)
+        # Get total adjustment from all adjustments that land on that day...
         for a in adjustments:
             if day >= a.start_date and day <= a.end_date:
-                deduction += (team.velocity / float(num_days)) * (float(a.percentage)/100)
+                # Adjustment needed for this day. 
+                # Get difference in points for this day.
+                deduction += daily_pts - (daily_pts * (float(a.percentage)/100))
     return int(round(team.velocity - deduction))
 
 

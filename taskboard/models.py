@@ -207,7 +207,7 @@ class TeamStrengthAdjustment(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     percentage = models.PositiveIntegerField(
-            help_text='The percentage of reduction in this team\'s velocity')
+            help_text='The percentage of team\'s velocity')
 
     def __unicode__(self):
         return '{0}: {1:%b %-d} - {2:%b %-d} @ {3}'.format(
