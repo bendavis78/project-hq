@@ -1,8 +1,0 @@
--e git://github.com/django/django.git#egg=Django
--e git://github.com/bendavis78/django-formhelper.git#egg=django-formhelper
-South
-django-tagging
-textile
-python-memcached
-psycopg2
-markdown
